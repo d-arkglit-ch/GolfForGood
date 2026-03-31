@@ -197,8 +197,8 @@ export default function Admin() {
   return (
     <div className="min-h-screen bg-ivory text-golf font-sans selection:bg-tan/30">
       {/* Editorial Admin Header */}
-      <nav className="relative z-50 border-b border-golf/10 px-6 sm:px-12 py-10 flex justify-between items-end bg-ivory">
-        <div className="flex flex-col">
+      <nav className="relative z-50 border-b border-golf/10 px-6 sm:px-12 py-6 sm:py-10 flex flex-col sm:flex-row justify-between items-center sm:items-end bg-ivory gap-6 sm:gap-0">
+        <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
           <span className="text-[10px] uppercase tracking-[0.3em] font-medium opacity-40 mb-1 leading-none italic text-olive">Platform Controller</span>
           <span className="text-xl font-display font-black leading-none tracking-tighter italic text-golf">Golf For Good Admin</span>
         </div>
@@ -222,20 +222,20 @@ export default function Admin() {
               <Users className="h-6 w-6 text-olive/60" />
               Platform Statistics
             </h2>
-            <div className="grid grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               <div className="p-4 border border-olive/5 rounded-xl">
                 <div className="text-[10px] uppercase font-bold tracking-widest opacity-40 mb-2">Total Patrons</div>
-                <div className="text-4xl font-display italic font-black text-golf">{users.length}</div>
+                <div className="text-3xl sm:text-4xl font-display italic font-black text-golf">{users.length}</div>
               </div>
               <div className="p-4 border border-olive/5 rounded-xl">
                 <div className="text-[10px] uppercase font-bold tracking-widest opacity-40 mb-2">Active Subs</div>
-                <div className="text-4xl font-display italic font-black text-olive">
+                <div className="text-3xl sm:text-4xl font-display italic font-black text-olive">
                   {users.filter(u => u.subscription?.status === 'active').length}
                 </div>
               </div>
               <div className="p-4 border border-olive/5 rounded-xl">
                 <div className="text-[10px] uppercase font-bold tracking-widest opacity-40 mb-2">Monthly Entry</div>
-                <div className="text-4xl font-display italic font-black text-golf">
+                <div className="text-3xl sm:text-4xl font-display italic font-black text-golf">
                   {allTickets.length}
                 </div>
               </div>
@@ -270,11 +270,11 @@ export default function Admin() {
               {drawNumbers ? (
                 <div className="text-center animate-fade-in-up">
                   <p className="text-[10px] text-olive/40 mb-6 font-bold uppercase tracking-[0.3em] font-display">Authenticated Sequence</p>
-                  <div className="flex gap-4 justify-center">
+                  <div className="flex gap-2 sm:gap-4 justify-center flex-wrap">
                     {drawNumbers.map((num, i) => (
                       <div
                         key={i}
-                        className="w-16 h-16 rounded-full bg-ivory text-olive border border-olive/20 flex items-center justify-center text-2xl font-serif italic font-black shadow-2xl shadow-olive/5 animate-fade-in-up"
+                        className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-ivory text-olive border border-olive/20 flex items-center justify-center text-xl sm:text-2xl font-serif italic font-black shadow-2xl shadow-olive/5 animate-fade-in-up"
                         style={{ animationDelay: `${i * 100}ms` }}
                       >
                         {num}
@@ -458,12 +458,12 @@ export default function Admin() {
           
           <div className="overflow-x-auto">
             <table className="w-full text-left">
-              <thead className="bg-olive/[0.02] text-[10px] uppercase tracking-[0.3em] font-black text-olive/30 italic">
+              <thead className="bg-white/[0.02] text-[10px] uppercase tracking-[0.3em] font-black text-olive italic">
                 <tr>
-                  <th className="px-8 py-5 border-b border-olive/5">Identity</th>
-                  <th className="px-8 py-5 border-b border-olive/5">Standing</th>
-                  <th className="px-8 py-5 border-b border-olive/5">Recent Performance</th>
-                  <th className="px-8 py-5 border-b border-olive/5">Sequence</th>
+                  <th className="px-8 py-5 border-b border-olive/5 min-w-[200px]">Identity</th>
+                  <th className="px-8 py-5 border-b border-olive/5 min-w-[150px]">Standing</th>
+                  <th className="px-8 py-5 border-b border-olive/5 min-w-[250px]">Recent Performance</th>
+                  <th className="px-8 py-5 border-b border-olive/5 min-w-[150px]">Sequence</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-olive/5">

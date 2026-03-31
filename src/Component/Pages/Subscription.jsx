@@ -194,10 +194,10 @@ export default function Subscription() {
               <div className="grid grid-cols-2 gap-8 pt-8 border-t border-olive/5">
                 <div>
                   <p className="text-[10px] uppercase font-bold tracking-widest opacity-40 mb-2">Account Status</p>
-                  <p className="text-olive font-bold flex items-center gap-2 text-sm italic">
+                  <div className="text-olive font-bold flex items-center gap-2 text-sm italic">
                     <div className="w-1.5 h-1.5 rounded-full bg-olive animate-pulse" />
                     Distinguished
-                  </p>
+                  </div>
                 </div>
                 <div>
                   <p className="text-[10px] uppercase font-bold tracking-widest opacity-40 mb-2">Next Occasion</p>

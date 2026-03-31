@@ -38,13 +38,13 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-ivory text-golf font-sans selection:bg-tan/30 leading-relaxed">
       {/* Editorial Header */}
-      <header className="relative z-50 border-b border-golf/10 px-6 sm:px-12 py-10 flex justify-between items-end bg-ivory">
-        <div className="flex flex-col">
+      <header className="relative z-50 border-b border-golf/10 px-6 sm:px-12 py-6 sm:py-10 flex flex-col sm:flex-row justify-between items-center sm:items-end bg-ivory gap-6 sm:gap-0">
+        <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
           <span className="text-[10px] uppercase tracking-[0.3em] font-medium opacity-60 mb-1 leading-none italic text-olive">Established 2026</span>
-          <span className="text-xl font-display font-black leading-none tracking-tighter italic">Golf For Good</span>
+          <span className="text-xl font-display font-black leading-none tracking-tighter italic text-golf">Golf For Good</span>
         </div>
 
-        <div className="flex gap-8 items-center">
+        <div className="flex gap-6 sm:gap-8 items-center">
           <Link
             to="/profile"
             className="group flex items-center gap-3 px-4 py-2 rounded-full border border-olive/10 hover:bg-olive hover:text-white transition-all duration-500"
@@ -52,8 +52,8 @@ export default function Dashboard() {
             <div className="w-6 h-6 rounded-full bg-pastel-olive/30 text-olive flex items-center justify-center font-bold text-[10px] uppercase group-hover:bg-white/20 group-hover:text-white">
               {profile?.full_name?.charAt(0) || 'U'}
             </div>
-            <span className="text-[10px] uppercase tracking-[0.2em] font-bold hidden sm:block">
-              {profile?.full_name || 'Profile'}
+            <span className="text-[10px] uppercase tracking-[0.2em] font-bold">
+              {profile?.full_name?.split(' ')[0] || 'Profile'}
             </span>
           </Link>
           
@@ -63,7 +63,7 @@ export default function Dashboard() {
             title="Sign Out"
           >
             <LogOut className="h-4 w-4" />
-            <span className="hidden sm:inline">Leave</span>
+            <span className="hidden xs:inline">Leave</span>
           </button>
         </div>
       </header>
@@ -137,8 +137,8 @@ export default function Dashboard() {
                   <div className="bg-olive/10 p-4 rounded-full mb-6">
                     <Crown className="w-8 h-8 text-olive" />
                   </div>
-                  <h3 className="text-3xl font-serif italic font-bold mb-4">Subscriber Exclusive</h3>
-                  <p className="text-[10px] uppercase tracking-widest font-bold opacity-50 mb-8 leading-relaxed">
+                  <h3 className="text-2xl sm:text-3xl font-serif italic font-bold mb-4">Subscriber Exclusive</h3>
+                  <p className="text-[9px] sm:text-[10px] uppercase tracking-widest font-bold opacity-50 mb-6 sm:mb-8 leading-relaxed">
                     Unlock elite algorithms and enter your rounds to fuel the Legacy Draw.
                   </p>
                   <Link 

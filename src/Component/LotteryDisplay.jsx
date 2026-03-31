@@ -161,7 +161,7 @@ export default function LotteryDisplay({ scores, user }) {
   return (
     <div className={`bg-sand/10 rounded-2xl border border-olive/10 p-8 flex flex-col h-full transition-all duration-700 shadow-2xl shadow-olive/5 ${justBecameEligible ? 'ring-2 ring-olive/20 ring-offset-4' : ''} ${tier ? 'ring-2 ring-olive ring-offset-4 shadow-olive/20' : ''}`}>
       <div className="flex items-center justify-between mb-8">
-        <h2 className="text-2xl font-serif italic font-bold text-golf flex items-center gap-4">
+        <h2 className="text-xl sm:text-2xl font-serif italic font-bold text-golf flex items-center gap-4">
           <Trophy className="h-6 w-6 text-olive/40" />
           The Legacy Draw
         </h2>
@@ -273,7 +273,7 @@ export default function LotteryDisplay({ scores, user }) {
             return (
               <div
                 key={i}
-                className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-2xl font-serif italic font-black transition-all duration-1000 transform ${
+                className={`w-10 h-10 xs:w-12 xs:h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-lg sm:text-2xl font-serif italic font-black transition-all duration-1000 transform ${
                   isMatched
                     ? 'bg-olive text-white shadow-2xl shadow-olive/30 ring-2 ring-white/20 scale-110'
                     : simulatedNumbers 
@@ -368,7 +368,7 @@ export default function LotteryDisplay({ scores, user }) {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div>
                           <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400 mb-1.5">Winning Numbers</p>
-                          <div className="flex gap-2">
+                          <div className="flex gap-2 flex-wrap justify-center sm:justify-start">
                             {draw.winning_numbers.map((num, i) => (
                               <div key={i} className="w-8 h-8 rounded-full bg-olive text-white flex items-center justify-center text-[10px] font-black shadow-lg shadow-olive/20 border border-white/10">
                                 {num}

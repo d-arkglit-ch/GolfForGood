@@ -195,7 +195,7 @@ export default function ScoreEntry({ userId, onScoreChange }) {
           scores.map((score, index) => (
             <div
               key={score.id}
-              className={`flex items-center justify-between p-6 rounded-2xl border transition-all duration-700 hover:shadow-lg hover:shadow-black/5 ${
+              className={`flex flex-col sm:flex-row items-center justify-between p-6 rounded-2xl border transition-all duration-700 hover:shadow-lg hover:shadow-black/5 gap-6 sm:gap-0 ${
                 index === 0 ? 'bg-tan border-white/10' : 'bg-sand border-white/5'
               }`}
             >
