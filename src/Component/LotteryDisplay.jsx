@@ -1,9 +1,10 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
-import { Trophy, Calendar, Sparkles, RefreshCw, Lock, AlertTriangle, CheckCircle } from 'lucide-react'
+import { Trophy, Sparkles, RefreshCw, Lock, AlertTriangle, CheckCircle, Crown, Star, Zap, Gift } from 'lucide-react'
 import authService from '../lib/supabase'
 
 export default function LotteryDisplay({ scores, user }) {
   const [simulatedNumbers, setSimulatedNumbers] = useState(null)
+  const [winningNumbers, setWinningNumbers] = useState(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [justBecameEligible, setJustBecameEligible] = useState(false)
@@ -12,25 +13,37 @@ export default function LotteryDisplay({ scores, user }) {
   // Current month key (e.g., '2026-03')
   const currentMonthKey = new Date().toISOString().slice(0, 7)
 
-  // 1. Fetch locked numbers for this month
-  const fetchMonthlyTicket = async () => {
+  // 1. Fetch locked numbers AND draw results for this month
+  const fetchMonthlyData = async () => {
     if (!user?.id) return
     setLoading(true)
-    const { data } = await authService.supabase
-      .from('user_lottery_numbers')
-      .select('numbers')
-      .eq('user_id', user.id)
-      .eq('month_year', currentMonthKey)
-      .single()
 
-    if (data?.numbers) {
-      setSimulatedNumbers(data.numbers)
+    const [ticketRes, drawRes] = await Promise.all([
+      authService.supabase
+        .from('user_lottery_numbers')
+        .select('numbers')
+        .eq('user_id', user.id)
+        .eq('month_year', currentMonthKey)
+        .single(),
+      authService.supabase
+        .from('monthly_draws')
+        .select('winning_numbers')
+        .eq('month_year', currentMonthKey)
+        .single()
+    ])
+
+    if (ticketRes.data?.numbers) {
+      setSimulatedNumbers(ticketRes.data.numbers)
     }
+    if (drawRes.data?.winning_numbers) {
+      setWinningNumbers(drawRes.data.winning_numbers)
+    }
+
     setLoading(false)
   }
 
   useEffect(() => {
-    fetchMonthlyTicket()
+    fetchMonthlyData()
   }, [user?.id, currentMonthKey])
 
   // 2. Check Eligibility (Scores THIS month)
@@ -40,7 +53,7 @@ export default function LotteryDisplay({ scores, user }) {
 
   const eligible = scoresThisMonth.length >= 2
 
-  // 3. Auto-detect when user just became eligible (crossed 2-score threshold)
+  // 3. Auto-detect when user just became eligible
   useEffect(() => {
     if (eligible && !prevEligibleRef.current) {
       setJustBecameEligible(true)
@@ -50,10 +63,30 @@ export default function LotteryDisplay({ scores, user }) {
     prevEligibleRef.current = eligible
   }, [eligible])
 
+  // 4. Calculate match results
+  const matchResults = useMemo(() => {
+    if (!simulatedNumbers || !winningNumbers) return null
+    const matched = simulatedNumbers.filter(n => winningNumbers.includes(n))
+    return {
+      count: matched.length,
+      matchedNumbers: matched
+    }
+  }, [simulatedNumbers, winningNumbers])
+
+  // Prize tier info
+  const getTierInfo = (count) => {
+    switch (count) {
+      case 5: return { label: 'JACKPOT WINNER', icon: <Crown className="h-5 w-5" />, color: 'amber', pool: '40%', emoji: '🏆' }
+      case 4: return { label: 'TIER 2 WINNER', icon: <Zap className="h-5 w-5" />, color: 'primary', pool: '35%', emoji: '⚡' }
+      case 3: return { label: 'TIER 3 WINNER', icon: <Gift className="h-5 w-5" />, color: 'blue', pool: '25%', emoji: '🎁' }
+      default: return null
+    }
+  }
+
   // Display numbers: Locked Ticket OR Fallback empty/zeros
   const displayNumbers = simulatedNumbers || [0, 0, 0, 0, 0]
 
-  // 3. Generate and LOCK weighted numbers
+  // Generate and LOCK weighted numbers
   const handleSimulateAndLock = async () => {
     if (!eligible || simulatedNumbers || saving) return
     
@@ -61,7 +94,6 @@ export default function LotteryDisplay({ scores, user }) {
     const generated = new Set()
     const rangePool = []
     
-    // Weight by their last 5 total scores (historical performance factor)
     const pastScores = scores.slice(0, 5).map(s => s.score)
     pastScores.forEach(score => {
        if (score <= 10) rangePool.push([1, 10])
@@ -71,10 +103,8 @@ export default function LotteryDisplay({ scores, user }) {
        else rangePool.push([41, 45])
     })
     
-    // Baseline chance
     rangePool.push([1, 10], [11, 20], [21, 30], [31, 40], [41, 45])
 
-    // Generate 5 unique
     while (generated.size < 5) {
       const idx = Math.floor(Math.random() * rangePool.length)
       const [min, max] = rangePool[idx]
@@ -84,7 +114,6 @@ export default function LotteryDisplay({ scores, user }) {
 
     const finalNumbers = Array.from(generated).sort((a, b) => a - b)
 
-    // SAVE TO DATABASE
     const { error } = await authService.supabase
       .from('user_lottery_numbers')
       .upsert({
@@ -102,10 +131,10 @@ export default function LotteryDisplay({ scores, user }) {
     setSaving(false)
   }
 
-  // Next draw formatting
+  // Next draw date
   const nextDrawDate = () => {
     const now = new Date()
-    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0) // Last day of current month
+    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
     return nextMonth.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
   }
 
@@ -117,15 +146,17 @@ export default function LotteryDisplay({ scores, user }) {
     )
   }
 
+  const tier = matchResults ? getTierInfo(matchResults.count) : null
+
   return (
-    <div className={`bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col h-full transition-all duration-500 ${justBecameEligible ? 'ring-2 ring-primary-400 ring-offset-2 shadow-lg shadow-primary-500/20' : ''}`}>
+    <div className={`bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col h-full transition-all duration-500 ${justBecameEligible ? 'ring-2 ring-primary-400 ring-offset-2 shadow-lg shadow-primary-500/20' : ''} ${tier ? 'ring-2 ring-offset-2 shadow-lg ' + (tier.color === 'amber' ? 'ring-amber-400 shadow-amber-500/20' : tier.color === 'primary' ? 'ring-primary-400 shadow-primary-500/20' : 'ring-blue-400 shadow-blue-500/20') : ''}`}>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
           <Trophy className="h-6 w-6 text-amber-500" />
           Monthly Charity Draw
         </h2>
         <button
-          onClick={fetchMonthlyTicket}
+          onClick={fetchMonthlyData}
           className="text-gray-400 hover:text-primary-600 p-2 rounded-lg hover:bg-primary-50 transition-colors"
           title="Refresh draw status"
         >
@@ -133,41 +164,105 @@ export default function LotteryDisplay({ scores, user }) {
         </button>
       </div>
 
-      {/* Dynamic Status Dashboard */}
-      <div className={`mb-6 p-5 rounded-xl border transition-all duration-500 ${
-        simulatedNumbers 
-          ? 'bg-green-50 border-green-200' 
-          : eligible
-            ? `bg-primary-50 border-primary-200 ${justBecameEligible ? 'animate-pulse' : ''}`
-            : 'bg-amber-50 border-amber-200'
-      }`}>
-        <div className="flex items-center gap-3">
-          {simulatedNumbers ? (
-            <CheckCircle className="h-8 w-8 text-green-600" />
-          ) : eligible ? (
-            <Sparkles className="h-8 w-8 text-primary-600" />
-          ) : (
-             <AlertTriangle className="h-8 w-8 text-amber-500" />
-          )}
-          
-          <div>
-            <h3 className={`font-bold ${simulatedNumbers ? 'text-green-900' : eligible ? 'text-primary-900' : 'text-amber-900'}`}>
-              {simulatedNumbers 
-                ? "✓ Entered in this month's draw" 
-                : eligible 
-                  ? "✓ Goal Reached! Generate your numbers." 
-                  : scoresThisMonth.length === 1 
-                    ? "⚠ Need 1 more score this month" 
-                    : "Enter at least 2 scores this month to participate"}
-            </h3>
-            <p className={`text-sm mt-0.5 ${simulatedNumbers ? 'text-green-700' : eligible ? 'text-primary-700' : 'text-amber-700'}`}>
-              {simulatedNumbers 
-                ? `Draw date: ${nextDrawDate()}`
-                : `Progress: ${scoresThisMonth.length}/2 scores entered in ${new Date().toLocaleDateString('en-US', { month: 'long' })}`}
-            </p>
+      {/* Winner Congratulation Banner */}
+      {tier && (
+        <div className={`mb-5 p-4 rounded-xl border-2 animate-fade-in-up ${
+          tier.color === 'amber' ? 'bg-amber-50 border-amber-300' :
+          tier.color === 'primary' ? 'bg-primary-50 border-primary-300' :
+          'bg-blue-50 border-blue-300'
+        }`}>
+          <div className="flex items-center gap-3">
+            <div className={`p-2 rounded-lg ${
+              tier.color === 'amber' ? 'bg-amber-100 text-amber-600' :
+              tier.color === 'primary' ? 'bg-primary-100 text-primary-600' :
+              'bg-blue-100 text-blue-600'
+            }`}>
+              {tier.icon}
+            </div>
+            <div>
+              <h3 className={`font-extrabold text-lg ${
+                tier.color === 'amber' ? 'text-amber-900' :
+                tier.color === 'primary' ? 'text-primary-900' :
+                'text-blue-900'
+              }`}>
+                {tier.emoji} {tier.label}!
+              </h3>
+              <p className={`text-sm font-medium ${
+                tier.color === 'amber' ? 'text-amber-700' :
+                tier.color === 'primary' ? 'text-primary-700' :
+                'text-blue-700'
+              }`}>
+                You matched {matchResults.count} numbers! You win a share of the {tier.pool} prize pool.
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* Dynamic Status Dashboard (only show if no winner banner) */}
+      {!tier && (
+        <div className={`mb-6 p-5 rounded-xl border transition-all duration-500 ${
+          simulatedNumbers 
+            ? winningNumbers 
+              ? 'bg-gray-50 border-gray-200'  
+              : 'bg-green-50 border-green-200' 
+            : eligible
+              ? `bg-primary-50 border-primary-200 ${justBecameEligible ? 'animate-pulse' : ''}`
+              : 'bg-amber-50 border-amber-200'
+        }`}>
+          <div className="flex items-center gap-3">
+            {simulatedNumbers ? (
+              winningNumbers ? (
+                <AlertTriangle className="h-8 w-8 text-gray-400" />
+              ) : (
+                <CheckCircle className="h-8 w-8 text-green-600" />
+              )
+            ) : eligible ? (
+              <Sparkles className="h-8 w-8 text-primary-600" />
+            ) : (
+               <AlertTriangle className="h-8 w-8 text-amber-500" />
+            )}
+            
+            <div>
+              <h3 className={`font-bold ${simulatedNumbers ? winningNumbers ? 'text-gray-700' : 'text-green-900' : eligible ? 'text-primary-900' : 'text-amber-900'}`}>
+                {simulatedNumbers 
+                  ? winningNumbers
+                    ? `No prize this month (${matchResults?.count || 0} match${matchResults?.count !== 1 ? 'es' : ''})`
+                    : "✓ Entered in this month's draw" 
+                  : eligible 
+                    ? "✓ Goal Reached! Generate your numbers." 
+                    : scoresThisMonth.length === 1 
+                      ? "⚠ Need 1 more score this month" 
+                      : "Enter at least 2 scores this month to participate"}
+              </h3>
+              <p className={`text-sm mt-0.5 ${simulatedNumbers ? winningNumbers ? 'text-gray-500' : 'text-green-700' : eligible ? 'text-primary-700' : 'text-amber-700'}`}>
+                {simulatedNumbers 
+                  ? winningNumbers
+                    ? 'Better luck next month! Keep entering your scores.'
+                    : `Draw date: ${nextDrawDate()}`
+                  : `Progress: ${scoresThisMonth.length}/2 scores entered in ${new Date().toLocaleDateString('en-US', { month: 'long' })}`}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Winning Numbers Section (if draw has happened) */}
+      {winningNumbers && simulatedNumbers && (
+        <div className="mb-5">
+          <p className="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider text-center">Official Winning Numbers</p>
+          <div className="flex gap-2 justify-center">
+            {winningNumbers.map((num, i) => (
+              <div
+                key={i}
+                className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-white flex items-center justify-center text-sm font-bold shadow-md shadow-amber-500/30"
+              >
+                {num}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Ticket Wrapper */}
       <div className="flex-1 flex flex-col justify-center mb-6">
@@ -176,18 +271,23 @@ export default function LotteryDisplay({ scores, user }) {
         </p>
         
         <div className="flex gap-2 sm:gap-3 justify-center mb-4">
-          {displayNumbers.map((num, i) => (
-            <div
-              key={i}
-              className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center text-xl font-bold transition-all duration-300 ${
-                simulatedNumbers 
-                  ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30' 
-                  : 'bg-gray-50 text-gray-300 border-2 border-dashed border-gray-200'
-              }`}
-            >
-              {num > 0 ? num : '-'}
-            </div>
-          ))}
+          {displayNumbers.map((num, i) => {
+            const isMatched = matchResults?.matchedNumbers?.includes(num)
+            return (
+              <div
+                key={i}
+                className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center text-xl font-bold transition-all duration-300 ${
+                  isMatched
+                    ? 'bg-green-500 text-white shadow-lg shadow-green-500/40 ring-2 ring-green-300 ring-offset-1 scale-110'
+                    : simulatedNumbers 
+                      ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30' 
+                      : 'bg-gray-50 text-gray-300 border-2 border-dashed border-gray-200'
+                }`}
+              >
+                {num > 0 ? num : '-'}
+              </div>
+            )
+          })}
         </div>
 
         {/* Generate / Locked button logic */}

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { LandPlot, Eye, EyeOff, ArrowRight, CheckCircle } from 'lucide-react'
@@ -15,12 +15,29 @@ export default function Signup() {
   const { signUp } = useAuth()
   const navigate = useNavigate()
 
+  // Password strength rules using regex
+  const passwordRules = useMemo(() => [
+    { label: 'Min 8 characters', met: password.length >= 8 },
+    { label: 'Uppercase letter', met: /[A-Z]/.test(password) },
+    { label: 'Lowercase letter', met: /[a-z]/.test(password) },
+    { label: 'Number (0-9)', met: /[0-9]/.test(password) },
+    { label: 'Special char (!@#$)', met: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password) },
+  ], [password])
+
+  const passwordStrength = useMemo(() => passwordRules.filter(r => r.met).length, [passwordRules])
+  const isPasswordValid = passwordStrength === 5
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
 
     if (!agreeTerms) {
       setError('Please agree to the terms and conditions')
+      return
+    }
+
+    if (!isPasswordValid) {
+      setError('Please meet all password requirements')
       return
     }
 
@@ -113,9 +130,16 @@ export default function Signup() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    minLength={6}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition pr-12"
-                    placeholder="Min 6 characters"
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition pr-12 ${
+                      password.length > 0
+                        ? passwordStrength === 5
+                          ? 'border-green-400'
+                          : passwordStrength >= 3
+                            ? 'border-amber-400'
+                            : 'border-red-300'
+                        : 'border-gray-300'
+                    }`}
+                    placeholder="Create a strong password"
                   />
                   <button
                     type="button"
@@ -125,7 +149,49 @@ export default function Signup() {
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
                 </div>
-                <p className="mt-1 text-xs text-gray-500">Must be at least 6 characters</p>
+
+                {/* Strength Meter Bar */}
+                {password.length > 0 && (
+                  <div className="mt-3 space-y-3">
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all duration-500 ${
+                            passwordStrength <= 1 ? 'bg-red-500' :
+                            passwordStrength <= 2 ? 'bg-orange-500' :
+                            passwordStrength <= 3 ? 'bg-amber-500' :
+                            passwordStrength <= 4 ? 'bg-lime-500' :
+                            'bg-green-500'
+                          }`}
+                          style={{ width: `${(passwordStrength / 5) * 100}%` }}
+                        />
+                      </div>
+                      <span className={`text-xs font-bold ${
+                        passwordStrength <= 1 ? 'text-red-600' :
+                        passwordStrength <= 2 ? 'text-orange-600' :
+                        passwordStrength <= 3 ? 'text-amber-600' :
+                        passwordStrength <= 4 ? 'text-lime-600' :
+                        'text-green-600'
+                      }`}>
+                        {passwordStrength <= 1 ? 'Weak' :
+                         passwordStrength <= 2 ? 'Fair' :
+                         passwordStrength <= 3 ? 'Good' :
+                         passwordStrength <= 4 ? 'Strong' :
+                         'Excellent'}
+                      </span>
+                    </div>
+
+                    {/* Per-rule checklist */}
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                      {passwordRules.map((rule, i) => (
+                        <div key={i} className={`flex items-center gap-1.5 text-xs transition-colors ${rule.met ? 'text-green-600' : 'text-gray-400'}`}>
+                          {rule.met ? <CheckCircle className="h-3.5 w-3.5 flex-shrink-0" /> : <div className="w-3.5 h-3.5 rounded-full border border-gray-300 flex-shrink-0" />}
+                          {rule.label}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="flex items-start gap-3">
@@ -146,7 +212,7 @@ export default function Signup() {
 
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || (password.length > 0 && !isPasswordValid)}
                 className="w-full bg-primary-600 text-white py-3 rounded-lg font-semibold hover:bg-primary-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {loading ? (
