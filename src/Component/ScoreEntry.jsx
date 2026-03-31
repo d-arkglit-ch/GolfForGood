@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { Plus, Trash2, Edit2, Check, X } from 'lucide-react'
 import authService from '../lib/supabase'
 
-export default function ScoreEntry({ userId }) {
+export default function ScoreEntry({ userId, onScoreChange }) {
   const [scores, setScores] = useState([])
   const [newScore, setNewScore] = useState('')
   const [newDate, setNewDate] = useState('')
@@ -72,6 +72,7 @@ export default function ScoreEntry({ userId }) {
       
       // Reload scores
       await loadScores()
+      if (onScoreChange) onScoreChange()
     } catch (err) {
       setError(err.message)
     } finally {
@@ -88,6 +89,7 @@ export default function ScoreEntry({ userId }) {
 
       if (error) throw error
       await loadScores()
+      if (onScoreChange) onScoreChange()
     } catch (_err) {
       setError('Failed to delete score')
     }
@@ -125,6 +127,7 @@ export default function ScoreEntry({ userId }) {
       
       setEditingId(null)
       await loadScores()
+      if (onScoreChange) onScoreChange()
     } catch (_err) {
       setError('Failed to update score')
     }

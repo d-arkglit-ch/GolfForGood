@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { Trophy, Calendar, Sparkles, RefreshCw, Lock, AlertTriangle, CheckCircle } from 'lucide-react'
 import authService from '../lib/supabase'
 
@@ -6,29 +6,30 @@ export default function LotteryDisplay({ scores, user }) {
   const [simulatedNumbers, setSimulatedNumbers] = useState(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [justBecameEligible, setJustBecameEligible] = useState(false)
+  const prevEligibleRef = useRef(false)
 
   // Current month key (e.g., '2026-03')
   const currentMonthKey = new Date().toISOString().slice(0, 7)
 
-  // 1. Fetch locked numbers for this month on mount
-  useEffect(() => {
+  // 1. Fetch locked numbers for this month
+  const fetchMonthlyTicket = async () => {
     if (!user?.id) return
+    setLoading(true)
+    const { data } = await authService.supabase
+      .from('user_lottery_numbers')
+      .select('numbers')
+      .eq('user_id', user.id)
+      .eq('month_year', currentMonthKey)
+      .single()
 
-    const fetchMonthlyTicket = async () => {
-      setLoading(true)
-      const { data, error } = await authService.supabase
-        .from('user_lottery_numbers')
-        .select('numbers')
-        .eq('user_id', user.id)
-        .eq('month_year', currentMonthKey)
-        .single()
-
-      if (data?.numbers) {
-        setSimulatedNumbers(data.numbers)
-      }
-      setLoading(false)
+    if (data?.numbers) {
+      setSimulatedNumbers(data.numbers)
     }
+    setLoading(false)
+  }
 
+  useEffect(() => {
     fetchMonthlyTicket()
   }, [user?.id, currentMonthKey])
 
@@ -38,6 +39,16 @@ export default function LotteryDisplay({ scores, user }) {
   }, [scores, currentMonthKey])
 
   const eligible = scoresThisMonth.length >= 2
+
+  // 3. Auto-detect when user just became eligible (crossed 2-score threshold)
+  useEffect(() => {
+    if (eligible && !prevEligibleRef.current) {
+      setJustBecameEligible(true)
+      const timer = setTimeout(() => setJustBecameEligible(false), 3000)
+      return () => clearTimeout(timer)
+    }
+    prevEligibleRef.current = eligible
+  }, [eligible])
 
   // Display numbers: Locked Ticket OR Fallback empty/zeros
   const displayNumbers = simulatedNumbers || [0, 0, 0, 0, 0]
@@ -107,18 +118,27 @@ export default function LotteryDisplay({ scores, user }) {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col h-full">
-      <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-        <Trophy className="h-6 w-6 text-amber-500" />
-        Monthly Charity Draw
-      </h2>
+    <div className={`bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col h-full transition-all duration-500 ${justBecameEligible ? 'ring-2 ring-primary-400 ring-offset-2 shadow-lg shadow-primary-500/20' : ''}`}>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+          <Trophy className="h-6 w-6 text-amber-500" />
+          Monthly Charity Draw
+        </h2>
+        <button
+          onClick={fetchMonthlyTicket}
+          className="text-gray-400 hover:text-primary-600 p-2 rounded-lg hover:bg-primary-50 transition-colors"
+          title="Refresh draw status"
+        >
+          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+        </button>
+      </div>
 
       {/* Dynamic Status Dashboard */}
-      <div className={`mb-6 p-5 rounded-xl border ${
+      <div className={`mb-6 p-5 rounded-xl border transition-all duration-500 ${
         simulatedNumbers 
           ? 'bg-green-50 border-green-200' 
           : eligible
-            ? 'bg-primary-50 border-primary-200'
+            ? `bg-primary-50 border-primary-200 ${justBecameEligible ? 'animate-pulse' : ''}`
             : 'bg-amber-50 border-amber-200'
       }`}>
         <div className="flex items-center gap-3">

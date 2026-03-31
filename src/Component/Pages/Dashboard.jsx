@@ -10,24 +10,19 @@ export default function Dashboard() {
   const { user, profile, subscription, isSubscribed, signOut } = useAuth()
   const [scores, setScores] = useState([])
 
-  // Load scores for lottery display
-  useEffect(() => {
+  const fetchScores = async () => {
     if (!user) return
-    let ignore = false
+    const { data } = await authService.supabase
+      .from('scores')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('date_played', { ascending: false })
+    setScores(data || [])
+  }
 
-    const fetchScores = async () => {
-      const { data } = await authService.supabase
-        .from('scores')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('date_played', { ascending: false })
-      if (!ignore) {
-        setScores(data || [])
-      }
-    }
-
+  // Load scores for lottery display on mount
+  useEffect(() => {
     fetchScores()
-    return () => { ignore = true }
   }, [user])
 
   const handleSignOut = async () => {
@@ -112,37 +107,41 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Locked Feature Area */}
-        <div className="relative rounded-3xl overflow-hidden">
-          {/* Content Grid (Dimmed but fully readable if locked) */}
-          <div className={`grid md:grid-cols-2 gap-8 transition-all duration-500 ${!isSubscribed ? 'pointer-events-none select-none opacity-80' : ''}`}>
-            {/* Left: Score Entry */}
-            <ScoreEntry userId={user.id} />
-            
-            {/* Right: Lottery Display */}
+        {/* Split Feature Layout */}
+        <div className="grid md:grid-cols-2 gap-8">
+          
+          {/* Left Column: Score Entry (The Freemium Paywall target) */}
+          <div className="relative rounded-3xl overflow-hidden h-full">
+            <div className={`transition-all duration-500 h-full ${!isSubscribed ? 'pointer-events-none select-none opacity-40 blur-[2px] scale-[0.98]' : ''}`}>
+              <ScoreEntry userId={user.id} onScoreChange={fetchScores} />
+            </div>
+
+            {/* Paywall Overlay locked exclusively to the Left Side */}
+            {!isSubscribed && (
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center p-6 text-center">
+                <div className="bg-white/95 backdrop-blur-md p-6 sm:p-8 rounded-3xl shadow-2xl border border-gray-200 w-full mx-auto flex flex-col items-center transform transition-transform hover:scale-105 duration-300">
+                  <div className="bg-gradient-to-br from-amber-400 to-orange-500 p-3 rounded-2xl mb-4 shadow-lg shadow-orange-500/30">
+                    <Crown className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-extrabold text-gray-900 mb-2">Subscriber Exclusive</h3>
+                  <p className="text-gray-600 text-sm font-medium mb-6">
+                    Unlock exact score algorithms and enter your rounds to fuel the Charity Draw!
+                  </p>
+                  <Link 
+                    to="/subscription" 
+                    className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-6 py-3 rounded-xl font-bold shadow-xl shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:-translate-y-0.5 transition-all text-center flex items-center justify-center gap-2"
+                  >
+                    Unlock for ₹5/mo
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
+          
+          {/* Right Column: Lottery Display (Unlocked, relying on natural progression) */}
+          <div className="h-full">
             <LotteryDisplay scores={scores} user={user} />
           </div>
-
-          {/* Freemium Paywall Overlay (Transparent backing so they can see features) */}
-          {!isSubscribed && (
-            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/10 rounded-3xl p-6 text-center">
-              <div className="bg-white/95 p-8 rounded-3xl shadow-2xl border border-gray-200 max-w-sm w-full mx-auto flex flex-col items-center transform transition-transform hover:scale-105 duration-300">
-                <div className="bg-gradient-to-br from-amber-400 to-orange-500 p-4 rounded-2xl mb-6 shadow-lg shadow-orange-500/30">
-                  <Crown className="w-10 h-10 text-white" />
-                </div>
-                <h3 className="text-2xl font-extrabold text-gray-900 mb-2">Subscriber Exclusive</h3>
-                <p className="text-gray-600 font-medium mb-8">
-                  Unlock exact score algorithms, track your history, and enter monthly prize draws.
-                </p>
-                <Link 
-                  to="/subscription" 
-                  className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-8 py-3.5 rounded-xl font-bold text-lg shadow-xl shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
-                >
-                  Unlock for ₹5/mo
-                </Link>
-              </div>
-            </div>
-          )}
         </div>
       </main>
     </div>
