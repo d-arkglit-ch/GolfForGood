@@ -1,0 +1,265 @@
+import { useState, useEffect, useCallback } from 'react'
+import { Plus, Trash2, Edit2, Check, X } from 'lucide-react'
+import authService from '../lib/supabase'
+
+export default function ScoreEntry({ userId }) {
+  const [scores, setScores] = useState([])
+  const [newScore, setNewScore] = useState('')
+  const [newDate, setNewDate] = useState('')
+  const [editingId, setEditingId] = useState(null)
+  const [editScore, setEditScore] = useState('')
+  const [editDate, setEditDate] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  const loadScores = useCallback(async () => {
+    try {
+      const { data, error } = await authService.supabase
+        .from('scores')
+        .select('*')
+        .eq('user_id', userId)
+        .order('date_played', { ascending: false })
+      
+      if (error) throw error
+      setScores(data || [])
+    } catch (_err) {
+      setError('Failed to load scores')
+    }
+  }, [userId])
+
+  // Load scores on mount
+  useEffect(() => {
+    loadScores()
+  }, [userId, loadScores])
+
+  const handleAdd = async (e) => {
+    e.preventDefault()
+    if (!newScore || !newDate) return
+
+    const scoreNum = parseInt(newScore)
+    if (scoreNum < 1 || scoreNum > 45) {
+      setError('Score must be between 1 and 45')
+      return
+    }
+
+    setLoading(true)
+    setError('')
+
+    try {
+      // Rolling 5 logic: if already at 5 scores, delete the oldest before adding
+      if (scores.length >= 5) {
+        const oldest = scores[scores.length - 1] // scores are sorted newest-first
+        const { error: delError } = await authService.supabase
+          .from('scores')
+          .delete()
+          .eq('id', oldest.id)
+        if (delError) throw delError
+      }
+
+      const { error } = await authService.supabase
+        .from('scores')
+        .insert({
+          user_id: userId,
+          score: scoreNum,
+          date_played: newDate
+        })
+
+      if (error) throw error
+
+      // Reset form
+      setNewScore('')
+      setNewDate('')
+      
+      // Reload scores
+      await loadScores()
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleDelete = async (id) => {
+    try {
+      const { error } = await authService.supabase
+        .from('scores')
+        .delete()
+        .eq('id', id)
+
+      if (error) throw error
+      await loadScores()
+    } catch (_err) {
+      setError('Failed to delete score')
+    }
+  }
+
+  const startEdit = (score) => {
+    setEditingId(score.id)
+    setEditScore(score.score.toString())
+    setEditDate(score.date_played)
+  }
+
+  const cancelEdit = () => {
+    setEditingId(null)
+    setEditScore('')
+    setEditDate('')
+  }
+
+  const handleUpdate = async (id) => {
+    const scoreNum = parseInt(editScore)
+    if (scoreNum < 1 || scoreNum > 45) {
+      setError('Score must be between 1 and 45')
+      return
+    }
+
+    try {
+      const { error } = await authService.supabase
+        .from('scores')
+        .update({
+          score: scoreNum,
+          date_played: editDate
+        })
+        .eq('id', id)
+
+      if (error) throw error
+      
+      setEditingId(null)
+      await loadScores()
+    } catch (_err) {
+      setError('Failed to update score')
+    }
+  }
+
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+      <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+        📝 Your Scores
+        <span className="text-sm font-normal text-gray-500">
+          ({scores.length}/5 entered)
+        </span>
+      </h2>
+
+      {error && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-lg text-red-600 text-sm">
+          {error}
+        </div>
+      )}
+
+      {/* Add Score Form */}
+      <form onSubmit={handleAdd} className="mb-6 flex gap-3">
+        <input
+          type="number"
+          min="1"
+          max="45"
+          value={newScore}
+          onChange={(e) => setNewScore(e.target.value)}
+          placeholder="Score (1-45)"
+          className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
+          required
+        />
+        <input
+          type="date"
+          value={newDate}
+          onChange={(e) => setNewDate(e.target.value)}
+          max={new Date().toISOString().split('T')[0]}
+          className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
+          required
+        />
+        <button
+          type="submit"
+          disabled={loading}
+          className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition disabled:opacity-50"
+        >
+          <Plus className="h-5 w-5" />
+        </button>
+      </form>
+
+      {scores.length >= 5 && (
+        <p className="mb-4 text-sm text-amber-600 bg-amber-50 p-3 rounded-lg">
+          5 scores stored. Adding a new score will automatically replace the oldest.
+        </p>
+      )}
+
+      {/* Scores List */}
+      <div className="space-y-3">
+        {scores.length === 0 ? (
+          <p className="text-gray-500 text-center py-8">No scores entered yet</p>
+        ) : (
+          scores.map((score, index) => (
+            <div
+              key={score.id}
+              className={`flex items-center justify-between p-4 rounded-lg border ${
+                index === 0 ? 'bg-primary-50 border-primary-200' : 'bg-gray-50 border-gray-100'
+              }`}
+            >
+              {editingId === score.id ? (
+                <>
+                  <div className="flex gap-2 flex-1">
+                    <input
+                      type="number"
+                      min="1"
+                      max="45"
+                      value={editScore}
+                      onChange={(e) => setEditScore(e.target.value)}
+                      className="w-24 px-3 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-primary-500 outline-none"
+                    />
+                    <input
+                      type="date"
+                      value={editDate}
+                      onChange={(e) => setEditDate(e.target.value)}
+                      className="px-3 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-primary-500 outline-none"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleUpdate(score.id)}
+                      className="text-green-600 hover:text-green-700"
+                    >
+                      <Check className="h-5 w-5" />
+                    </button>
+                    <button
+                      onClick={cancelEdit}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div>
+                    <span className="text-2xl font-bold text-primary-600">
+                      {score.score}
+                    </span>
+                    <span className="text-gray-500 ml-3">
+                      {new Date(score.date_played).toLocaleDateString()}
+                    </span>
+                    {index === 0 && (
+                      <span className="ml-2 text-xs bg-primary-100 text-primary-700 px-2 py-1 rounded">
+                        Latest
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => startEdit(score)}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(score.id)}
+                      className="text-red-400 hover:text-red-600"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  )
+}
