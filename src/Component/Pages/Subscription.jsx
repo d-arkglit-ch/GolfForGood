@@ -15,6 +15,7 @@ import {
   CreditCard,
   ArrowLeft,
   RefreshCw,
+  X
 } from 'lucide-react'
 
 // Helper to dynamically load the Razorpay script
@@ -29,7 +30,7 @@ const loadRazorpayScript = () => {
 }
 
 export default function Subscription() {
-  const { user, profile, isSubscribed, refreshSubscription } = useAuth()
+  const { user, profile, subscription, isSubscribed, refreshSubscription } = useAuth()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
@@ -39,6 +40,114 @@ export default function Subscription() {
   useEffect(() => {
     loadRazorpayScript()
   }, [])
+
+  // Handle "Subscribe" with Razorpay
+  const handleSubscribe = async () => {
+    setLoading(true)
+    setError('')
+
+    try {
+      const isLoaded = await loadRazorpayScript()
+      if (!isLoaded) {
+        throw new Error('Razorpay SDK failed to load. Are you online?')
+      }
+
+      // 1. Ask our backend to generate a Razorpay Subscription ID
+      const response = await fetch('/api/create-razorpay-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId: user.id }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to initialize subscription')
+      }
+
+      // 2. Open the Razorpay Checkout Modal
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID, 
+        subscription_id: data.subscriptionId,
+        name: 'Golf Charity',
+        description: 'Monthly ₹5 Subscription',
+        image: 'https://cdn.lucide.dev/icons/land-plot.svg', 
+        handler: async function (response) {
+          const { error: subError } = await authService.supabase
+            .from('subscriptions')
+            .upsert({
+              user_id: user.id,
+              status: 'active',
+              plan_type: 'Monthly ₹5',
+              amount: 500, 
+              stripe_customer_id: response.razorpay_payment_id || 'razorpay_direct',
+              stripe_subscription_id: response.razorpay_subscription_id,
+              current_period_start: new Date().toISOString(),
+              current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+            }, { onConflict: 'user_id' })
+
+          if (subError) console.error("Could not instantly update local DB, relying on webhook:", subError)
+
+          setSuccess(true)
+          await refreshSubscription()
+          setTimeout(() => navigate('/dashboard'), 2000)
+        },
+        prefill: {
+          name: profile?.full_name || '',
+          email: user?.email || '',
+        },
+        theme: {
+          color: '#10b981', 
+        },
+      }
+
+      const razorpayInstance = new window.Razorpay(options)
+      razorpayInstance.on('payment.failed', function (response){
+        console.error(response.error)
+        setError(response.error.description || 'Payment completely failed or was canceled.')
+      })
+      razorpayInstance.open()
+
+    } catch (err) {
+      console.error(err)
+      setError(err.message || 'Failed to activate subscription. Check console.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Handle Cancel Subscription
+  const handleCancelSubscription = async () => {
+    if (!window.confirm('Are you sure you want to cancel your VIP membership? You will lose access to premium features immediately.')) {
+      return
+    }
+
+    setLoading(true)
+    setError('')
+
+    try {
+      const { error: cancelError } = await authService.supabase
+        .from('subscriptions')
+        .update({ 
+          status: 'cancelled',
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', user.id)
+
+      if (cancelError) throw cancelError
+
+      // Refresh local auth state so the UI updates globally
+      await refreshSubscription()
+      
+    } catch (err) {
+      console.error('Cancellation error:', err)
+      setError('Failed to cancel subscription. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   if (isSubscribed) {
     return (
@@ -105,101 +214,34 @@ export default function Subscription() {
                 </div>
               </div>
             </div>
-            <Link
-              to="/dashboard"
-              className="group inline-flex items-center gap-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white px-8 py-4 rounded-2xl font-bold hover:from-primary-400 hover:to-primary-500 transition-all duration-300 shadow-xl shadow-primary-500/30"
-            >
-              Go to Dashboard
-              <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Link
+                to="/dashboard"
+                className="group inline-flex items-center gap-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white px-8 py-4 rounded-2xl font-bold hover:from-primary-400 hover:to-primary-500 transition-all duration-300 shadow-xl shadow-primary-500/30 w-full sm:w-auto justify-center"
+              >
+                Go to Dashboard
+                <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              </Link>
+              
+              <button
+                onClick={handleCancelSubscription}
+                disabled={loading}
+                className="group inline-flex items-center gap-2.5 bg-transparent border border-red-500/30 text-red-400 px-8 py-4 rounded-2xl font-bold hover:bg-red-500/5 transition-all duration-300 w-full sm:w-auto justify-center disabled:opacity-50"
+              >
+                {loading ? (
+                  <img src="/golf-green.gif" alt="..." className="h-5 w-5 object-contain" />
+                ) : (
+                  <>
+                    <X className="h-5 w-5" />
+                    Cancel Subscription
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </div>
     )
-  }
-
-  // Handle "Subscribe" with Razorpay
-  const handleSubscribe = async () => {
-    setLoading(true)
-    setError('')
-
-    try {
-      const isLoaded = await loadRazorpayScript()
-      if (!isLoaded) {
-        throw new Error('Razorpay SDK failed to load. Are you online?')
-      }
-
-      // 1. Ask our backend to generate a Razorpay Subscription ID
-      // Note: If testing locally with Vite without 'vercel dev', this call might fail 
-      // if you haven't set up a proxy. In production on Vercel, /api works perfectly.
-      const response = await fetch('/api/create-razorpay-subscription', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ userId: user.id }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to initialize subscription')
-      }
-
-      // 2. Open the Razorpay Checkout Modal
-      const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID, // Enter the Key ID generated from the Dashboard
-        subscription_id: data.subscriptionId,
-        name: 'Golf Charity',
-        description: 'Monthly ₹5 Subscription',
-        image: 'https://cdn.lucide.dev/icons/land-plot.svg', // Simple logo
-        handler: async function (response) {
-          // 3. SUCCESS CALLBACK! 
-          // Razorpay returns razorpay_payment_id, razorpay_subscription_id, razorpay_signature
-          
-          const { error: subError } = await authService.supabase
-            .from('subscriptions')
-            .upsert({
-              user_id: user.id,
-              status: 'active',
-              plan_type: 'Monthly ₹5',
-              amount: 500, // 500 = ₹5.00
-              stripe_customer_id: response.razorpay_payment_id || 'razorpay_direct',
-              stripe_subscription_id: response.razorpay_subscription_id,
-              current_period_start: new Date().toISOString(),
-              current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-            }, { onConflict: 'user_id' })
-
-          if (subError) console.error("Could not instantly update local DB, relying on webhook:", subError)
-
-          setSuccess(true)
-          await refreshSubscription()
-          setTimeout(() => navigate('/dashboard'), 2000)
-        },
-        prefill: {
-          name: profile?.full_name || '',
-          email: user?.email || '',
-        },
-        theme: {
-          color: '#10b981', // Tailwind primary-500
-        },
-      }
-
-      const razorpayInstance = new window.Razorpay(options)
-      
-      razorpayInstance.on('payment.failed', function (response){
-        console.error(response.error)
-        setError(response.error.description || 'Payment completely failed or was canceled.')
-      })
-
-      razorpayInstance.open()
-
-    } catch (err) {
-      console.error(err)
-      setError(err.message || 'Failed to activate subscription. Check console.')
-    } finally {
-      setLoading(false)
-    }
   }
 
   // Success state
@@ -215,7 +257,7 @@ export default function Subscription() {
             Your Razorpay subscription is now active!
           </p>
           <p className="text-surface-500 text-sm flex items-center justify-center gap-2">
-            <RefreshCw className="h-4 w-4 animate-spin" />
+            <img src="/golf-green.gif" alt="..." className="h-4 w-4 object-contain" />
             Redirecting to dashboard...
           </p>
         </div>
@@ -317,7 +359,7 @@ export default function Subscription() {
               className="group w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white py-4 rounded-2xl font-bold text-lg hover:from-emerald-400 hover:to-emerald-500 transition-all duration-300 shadow-xl shadow-emerald-500/25 hover:shadow-emerald-500/40 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2.5"
             >
               {loading ? (
-                <div className="animate-spin rounded-full h-5 w-5 border-2 border-white/30 border-t-white" />
+                <img src="/golf-green.gif" alt="Loading..." className="h-6 w-6 object-contain" />
               ) : (
                 <>
                   <CreditCard className="h-5 w-5" />

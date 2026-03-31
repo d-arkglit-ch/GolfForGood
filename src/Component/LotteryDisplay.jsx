@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
-import { Trophy, Sparkles, RefreshCw, Lock, AlertTriangle, CheckCircle, Crown, Star, Zap, Gift } from 'lucide-react'
+import { Trophy, Sparkles, RefreshCw, Lock, AlertTriangle, CheckCircle, Crown, Star, Zap, Gift, ChevronDown, ChevronUp, Calendar } from 'lucide-react'
 import authService from '../lib/supabase'
 
 export default function LotteryDisplay({ scores, user }) {
@@ -8,12 +8,18 @@ export default function LotteryDisplay({ scores, user }) {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [justBecameEligible, setJustBecameEligible] = useState(false)
+  
+  // History state
+  const [pastDraws, setPastDraws] = useState([])
+  const [pastTickets, setPastTickets] = useState([])
+  const [showHistory, setShowHistory] = useState(false)
+  
   const prevEligibleRef = useRef(false)
 
   // Current month key (e.g., '2026-03')
   const currentMonthKey = new Date().toISOString().slice(0, 7)
 
-  // 1. Fetch locked numbers AND draw results for this month
+  // 1. Fetch locked numbers AND draw results for ALL months
   const fetchMonthlyData = async () => {
     if (!user?.id) return
     setLoading(true)
@@ -21,23 +27,27 @@ export default function LotteryDisplay({ scores, user }) {
     const [ticketRes, drawRes] = await Promise.all([
       authService.supabase
         .from('user_lottery_numbers')
-        .select('numbers')
-        .eq('user_id', user.id)
-        .eq('month_year', currentMonthKey)
-        .single(),
+        .select('*')
+        .eq('user_id', user.id),
       authService.supabase
         .from('monthly_draws')
-        .select('winning_numbers')
-        .eq('month_year', currentMonthKey)
-        .single()
+        .select('*')
+        .order('month_year', { ascending: false })
     ])
 
-    if (ticketRes.data?.numbers) {
-      setSimulatedNumbers(ticketRes.data.numbers)
-    }
-    if (drawRes.data?.winning_numbers) {
-      setWinningNumbers(drawRes.data.winning_numbers)
-    }
+    const allTickets = ticketRes.data || []
+    const allDraws = drawRes.data || []
+
+    // Current month setup
+    const currentTicket = allTickets.find(t => t.month_year === currentMonthKey)
+    const currentDraw = allDraws.find(d => d.month_year === currentMonthKey)
+
+    if (currentTicket) setSimulatedNumbers(currentTicket.numbers)
+    if (currentDraw) setWinningNumbers(currentDraw.winning_numbers)
+
+    // History setup (only past draws that have actually occurred)
+    setPastDraws(allDraws.filter(d => d.month_year !== currentMonthKey))
+    setPastTickets(allTickets.filter(t => t.month_year !== currentMonthKey))
 
     setLoading(false)
   }
@@ -140,8 +150,8 @@ export default function LotteryDisplay({ scores, user }) {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 flex justify-center items-center">
-        <RefreshCw className="h-6 w-6 text-primary-500 animate-spin" />
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 flex justify-center items-center h-full">
+        <img src="/golf-green.gif" alt="Loading..." className="w-16 h-16 object-contain" />
       </div>
     )
   }
@@ -315,11 +325,101 @@ export default function LotteryDisplay({ scores, user }) {
 
       {/* Prize Pool Info */}
       <div className="pt-5 border-t border-gray-100 mt-auto">
-        <div className="flex justify-between text-xs sm:text-sm text-gray-500">
+        <div className="flex justify-between text-xs sm:text-sm text-gray-500 mb-4">
            <span>5-match: <strong className="text-primary-600">40%</strong></span>
            <span>4-match: <strong className="text-primary-600">35%</strong></span>
            <span>3-match: <strong className="text-primary-600">25%</strong></span>
         </div>
+
+        {/* Past Draws Toggle */}
+        {pastDraws.length > 0 && (
+          <div className="mt-4 border border-gray-100 rounded-xl overflow-hidden bg-gray-50">
+            <button
+              onClick={() => setShowHistory(!showHistory)}
+              className="w-full flex items-center justify-between px-4 py-3 text-sm font-bold text-gray-700 hover:bg-gray-100 transition"
+            >
+              <span className="flex items-center gap-2 text-gray-900">
+                <Calendar className="h-4 w-4 text-primary-500" />
+                View Past Draws
+              </span>
+              {showHistory ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            </button>
+            
+            {showHistory && (
+              <div className="divide-y divide-gray-100 border-t border-gray-100">
+                {pastDraws.map((draw) => {
+                  const [year, month] = draw.month_year.split('-')
+                  const dateObj = new Date(year, month - 1)
+                  const monthName = dateObj.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+                  
+                  const userTicket = pastTickets.find(t => t.month_year === draw.month_year)
+                  
+                  // Math match count
+                  let matchCount = 0
+                  if (userTicket) {
+                    matchCount = userTicket.numbers.filter(n => draw.winning_numbers.includes(n)).length
+                  }
+                  
+                  const tierInfo = getTierInfo(matchCount)
+
+                  return (
+                    <div key={draw.id} className="p-4 bg-white">
+                      <div className="flex justify-between items-center mb-3">
+                        <span className="font-bold text-gray-900 text-sm">{monthName}</span>
+                        {tierInfo ? (
+                          <span className={`text-xs font-bold px-2 py-0.5 rounded-md ${
+                            tierInfo.color === 'amber' ? 'bg-amber-100 text-amber-700' :
+                            tierInfo.color === 'primary' ? 'bg-primary-100 text-primary-700' :
+                            'bg-blue-100 text-blue-700'
+                          }`}>
+                            {tierInfo.emoji} Won {tierInfo.pool}
+                          </span>
+                        ) : (
+                          <span className="text-xs text-gray-400 font-medium">No prize</span>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400 mb-1.5">Winning Numbers</p>
+                          <div className="flex gap-1">
+                            {draw.winning_numbers.map((num, i) => (
+                              <div key={i} className="w-6 h-6 rounded-full bg-amber-400 text-white flex items-center justify-center text-[10px] font-bold shadow-sm shadow-amber-500/20">
+                                {num}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400 mb-1.5">Your Ticket</p>
+                          {userTicket ? (
+                            <div className="flex gap-1">
+                              {userTicket.numbers.map((num, i) => {
+                                const isMatched = draw.winning_numbers.includes(num)
+                                return (
+                                  <div key={i} className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                                    isMatched 
+                                      ? 'bg-green-500 text-white shadow-sm' 
+                                      : 'bg-gray-100 text-gray-500 border border-gray-200'
+                                  }`}>
+                                    {num}
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          ) : (
+                            <p className="text-xs text-gray-400 italic mt-1">No ticket generated</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )

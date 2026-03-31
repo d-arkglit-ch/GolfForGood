@@ -117,7 +117,7 @@ export default function Login() {
                 className="w-full bg-primary-600 text-white py-3 rounded-lg font-semibold hover:bg-primary-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {loading ? (
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  <img src="/golf-green.gif" alt="Loading..." className="h-6 w-6 object-contain" />
                 ) : (
                   <>
                     Sign In <ArrowRight className="h-5 w-5" />

@@ -1,6 +1,6 @@
 import { useAuth } from '../context/AuthContext'
 import { Link } from 'react-router-dom'
-import { LandPlot, LogOut, Crown } from 'lucide-react'
+import { LandPlot, LogOut, Crown, HeartHandshake, ArrowRight } from 'lucide-react'
 import ScoreEntry from '../ScoreEntry'
 import LotteryDisplay from '../LotteryDisplay'
 import authService from '../../lib/supabase'
@@ -9,20 +9,26 @@ import { useState, useEffect } from 'react'
 export default function Dashboard() {
   const { user, profile, subscription, isSubscribed, signOut } = useAuth()
   const [scores, setScores] = useState([])
+  const [activeCharity, setActiveCharity] = useState('Loading...')
 
-  const fetchScores = async () => {
+  const fetchDashboardData = async () => {
     if (!user) return
-    const { data } = await authService.supabase
-      .from('scores')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('date_played', { ascending: false })
-    setScores(data || [])
+    const [scoresRes, settingsRes] = await Promise.all([
+      authService.supabase.from('scores').select('*').eq('user_id', user.id).order('date_played', { ascending: false }),
+      authService.supabase.from('platform_settings').select('active_charity').eq('id', 1).single()
+    ])
+    
+    setScores(scoresRes.data || [])
+    if (settingsRes.data) {
+      setActiveCharity(settingsRes.data.active_charity)
+    } else {
+      setActiveCharity('Global Golf Foundation')
+    }
   }
 
-  // Load scores for lottery display on mount
+  // Load scores and charity data on mount
   useEffect(() => {
-    fetchScores()
+    fetchDashboardData()
   }, [user])
 
   const handleSignOut = async () => {
@@ -69,6 +75,16 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        {/* Charity Banner */}
+        <div className="mb-6 p-4 bg-gradient-to-r from-rose-50 to-pink-50 border border-rose-100 rounded-xl flex flex-col sm:flex-row items-center justify-center gap-3 shadow-sm animate-fade-in-up hover:shadow-md transition">
+          <div className="bg-rose-100 p-2 rounded-full">
+            <HeartHandshake className="h-5 w-5 text-rose-600" />
+          </div>
+          <span className="text-gray-800 font-medium text-center sm:text-left">
+             This month, 10% of all platform subscriptions go to: <strong className="text-rose-700 font-extrabold tracking-wide">{activeCharity}</strong>
+          </span>
+        </div>
+
         {/* Subscription Status Banner */}
         {isSubscribed ? (
           <div className="mb-8 p-4 bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-100 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
@@ -83,9 +99,12 @@ export default function Dashboard() {
                 </p>
               </div>
             </div>
-            <span className="bg-emerald-500 text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-sm">
-              {subscription?.plan_type || 'Monthly ₹5'}
-            </span>
+            <Link
+              to="/subscription"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-sm transition-colors flex items-center gap-1.5"
+            >
+              Manage <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
         ) : (
           <div className="mb-8 p-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
@@ -113,7 +132,7 @@ export default function Dashboard() {
           {/* Left Column: Score Entry (The Freemium Paywall target) */}
           <div className="relative rounded-3xl overflow-hidden h-full">
             <div className={`transition-all duration-500 h-full ${!isSubscribed ? 'pointer-events-none select-none opacity-40 blur-[2px] scale-[0.98]' : ''}`}>
-              <ScoreEntry userId={user.id} onScoreChange={fetchScores} />
+              <ScoreEntry userId={user.id} onScoreChange={fetchDashboardData} />
             </div>
 
             {/* Paywall Overlay locked exclusively to the Left Side */}

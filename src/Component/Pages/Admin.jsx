@@ -13,7 +13,9 @@ import {
   Crown,
   AlertTriangle,
   CheckCircle,
-  Lock
+  Lock,
+  Calendar,
+  HeartHandshake
 } from 'lucide-react'
 
 export default function Admin() {
@@ -24,6 +26,15 @@ export default function Admin() {
   const [drawAlreadyExists, setDrawAlreadyExists] = useState(false)
   const [isDrawing, setIsDrawing] = useState(false)
   const [winners, setWinners] = useState([])
+  const [currentTickets, setCurrentTickets] = useState([])
+  
+  // Settings state
+  const [activeCharity, setActiveCharity] = useState('Loading...')
+  const [charityInput, setCharityInput] = useState('')
+  const [savingCharity, setSavingCharity] = useState(false)
+
+  // History state
+  const [pastDraws, setPastDraws] = useState([])
   const [allTickets, setAllTickets] = useState([])
 
   const currentMonthKey = new Date().toISOString().slice(0, 7)
@@ -36,25 +47,43 @@ export default function Admin() {
   const fetchAdminData = async () => {
     setLoading(true)
     try {
-      // Fetch profiles, subscriptions, scores, existing draw, and all user tickets
-      const [profilesRes, subsRes, scoresRes, drawRes, ticketsRes] = await Promise.all([
+      // Fetch profiles, subscriptions, scores, ALL draws, and ALL user tickets + Settings
+      const [profilesRes, subsRes, scoresRes, drawsRes, ticketsRes, settingsRes] = await Promise.all([
         authService.supabase.from('profiles').select('*'),
         authService.supabase.from('subscriptions').select('*'),
         authService.supabase.from('scores').select('*').order('date_played', { ascending: false }),
-        authService.supabase.from('monthly_draws').select('*').eq('month_year', currentMonthKey).single(),
-        authService.supabase.from('user_lottery_numbers').select('*').eq('month_year', currentMonthKey)
+        authService.supabase.from('monthly_draws').select('*').order('month_year', { ascending: false }),
+        authService.supabase.from('user_lottery_numbers').select('*'),
+        authService.supabase.from('platform_settings').select('*').eq('id', 1).single()
       ])
+
+      if (settingsRes.data) {
+        setActiveCharity(settingsRes.data.active_charity)
+        setCharityInput(settingsRes.data.active_charity)
+      } else {
+        setActiveCharity('Not Configured')
+      }
 
       const profiles = profilesRes.data || []
       const subs = subsRes.data || []
       const scores = scoresRes.data || []
-      const tickets = ticketsRes.data || []
+      
+      const allDrawsData = drawsRes.data || []
+      const allTicketsData = ticketsRes.data || []
 
-      // Combine user data
+      // Segregate data
+      const currentDraw = allDrawsData.find(d => d.month_year === currentMonthKey)
+      const thisMonthTickets = allTicketsData.filter(t => t.month_year === currentMonthKey)
+
+      setPastDraws(allDrawsData.filter(d => d.month_year !== currentMonthKey))
+      setAllTickets(allTicketsData)
+      setCurrentTickets(thisMonthTickets)
+
+      // Combine user data (for current month table)
       const combinedUsers = profiles.map(profile => {
         const userSub = subs.find(s => s.user_id === profile.id)
         const userScores = scores.filter(s => s.user_id === profile.id).slice(0, 5)
-        const userTicket = tickets.find(t => t.user_id === profile.id)
+        const userTicket = thisMonthTickets.find(t => t.user_id === profile.id)
         
         return {
           ...profile,
@@ -65,20 +94,34 @@ export default function Admin() {
       })
 
       setUsers(combinedUsers)
-      setAllTickets(tickets)
 
       // Check if draw already exists for this month
-      if (drawRes.data?.winning_numbers) {
-        setDrawNumbers(drawRes.data.winning_numbers)
+      if (currentDraw?.winning_numbers) {
+        setDrawNumbers(currentDraw.winning_numbers)
         setDrawAlreadyExists(true)
-        // Calculate winners
-        calculateWinners(drawRes.data.winning_numbers, tickets, combinedUsers)
+        // Calculate current month winners
+        calculateWinners(currentDraw.winning_numbers, thisMonthTickets, combinedUsers)
       }
     } catch (error) {
       console.error('Error fetching admin data:', error)
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleUpdateCharity = async () => {
+    if (!charityInput.trim()) return
+    setSavingCharity(true)
+    const { error } = await authService.supabase
+      .from('platform_settings')
+      .upsert({ id: 1, active_charity: charityInput.trim() }, { onConflict: 'id' })
+    
+    if (!error) {
+      setActiveCharity(charityInput.trim())
+    } else {
+      console.error('Failed to change charity', error)
+    }
+    setSavingCharity(false)
   }
 
   // Calculate winners by comparing each user's ticket against winning numbers
@@ -261,6 +304,38 @@ export default function Admin() {
           </div>
         </div>
 
+        {/* Global Charity Settings Panel */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+          <div className="flex flex-col md:flex-row gap-6 md:items-center justify-between">
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2 mb-1">
+                <HeartHandshake className="h-6 w-6 text-rose-500" />
+                Active Platform Charity
+              </h2>
+              <p className="text-sm text-gray-500">
+                Current active charity: <strong className="text-gray-900">{activeCharity}</strong>
+              </p>
+            </div>
+            
+            <div className="flex gap-3 w-full md:w-auto">
+              <input 
+                type="text" 
+                value={charityInput}
+                onChange={(e) => setCharityInput(e.target.value)}
+                placeholder="Enter charity name..."
+                className="flex-1 md:w-64 px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition"
+              />
+              <button 
+                onClick={handleUpdateCharity}
+                disabled={savingCharity || !charityInput.trim() || charityInput === activeCharity}
+                className="px-6 py-2 bg-rose-600 text-white font-semibold rounded-xl hover:bg-rose-700 transition shadow-md shadow-rose-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 whitespace-nowrap"
+              >
+                {savingCharity ? <RefreshCw className="h-4 w-4 animate-spin" /> : 'Set Active'}
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* Winners Panel */}
         {drawNumbers && (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden animate-fade-in-up">
@@ -333,6 +408,49 @@ export default function Admin() {
           </div>
         )}
 
+        {/* Draw History Panel */}
+        {pastDraws.length > 0 && (
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mt-8">
+            <div className="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+              <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <Calendar className="h-6 w-6 text-gray-400" />
+                Past Draws History
+              </h2>
+            </div>
+            <div className="divide-y divide-gray-100">
+              {pastDraws.map((draw) => {
+                const [year, month] = draw.month_year.split('-')
+                const dateObj = new Date(year, month - 1)
+                const monthName = dateObj.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+                
+                const monthTickets = allTickets.filter(t => t.month_year === draw.month_year)
+                
+                const winnerCount = monthTickets.filter(t => {
+                  const matches = t.numbers.filter(n => draw.winning_numbers.includes(n)).length
+                  return matches >= 3
+                }).length
+
+                return (
+                  <div key={draw.id} className="px-8 py-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-gray-50/50 transition">
+                    <div className="flex flex-col">
+                      <span className="font-bold text-gray-900">{monthName}</span>
+                      <span className="text-sm text-gray-500">{monthTickets.length} tickets • {winnerCount} winners</span>
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      {draw.winning_numbers.map((num, i) => (
+                        <div key={i} className="w-10 h-10 rounded-full bg-gray-100 text-gray-700 flex items-center justify-center text-sm font-bold border border-gray-200 shadow-sm">
+                          {num}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Users Table */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-white">
@@ -360,7 +478,7 @@ export default function Admin() {
                 {loading ? (
                   <tr>
                     <td colSpan="4" className="px-8 py-16 text-center text-gray-400">
-                      <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-3 text-primary-500" />
+                      <img src="/golf-green.gif" alt="Loading..." className="w-12 h-12 mx-auto mb-3 object-contain" />
                       Loading user database...
                     </td>
                   </tr>

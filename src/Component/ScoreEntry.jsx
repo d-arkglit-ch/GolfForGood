@@ -136,7 +136,7 @@ export default function ScoreEntry({ userId, onScoreChange }) {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
       <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-        📝 Your Scores
+         Your Scores
         <span className="text-sm font-normal text-gray-500">
           ({scores.length}/5 entered)
         </span>
@@ -171,9 +171,13 @@ export default function ScoreEntry({ userId, onScoreChange }) {
         <button
           type="submit"
           disabled={loading}
-          className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition disabled:opacity-50"
+          className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition disabled:opacity-50 flex items-center justify-center min-w-[44px]"
         >
-          <Plus className="h-5 w-5" />
+          {loading ? (
+            <img src="/golf-green.gif" alt="..." className="h-5 w-5 object-contain" />
+          ) : (
+            <Plus className="h-5 w-5" />
+          )}
         </button>
       </form>
 

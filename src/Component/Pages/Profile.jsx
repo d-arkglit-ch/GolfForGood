@@ -18,19 +18,9 @@ export default function Profile() {
   const { user, profile, subscription, isSubscribed } = useAuth()
   
   const [fullName, setFullName] = useState(profile?.full_name || '')
-  const [charity, setCharity] = useState(profile?.charity_preference || 'St. Jude Children\'s Research Hospital')
   
   const [isSaving, setIsSaving] = useState(false)
   const [saveMessage, setSaveMessage] = useState({ text: '', type: '' })
-
-  const charities = [
-    "St. Jude Children's Research Hospital",
-    "American Red Cross",
-    "World Wildlife Fund",
-    "Doctors Without Borders",
-    "Make-A-Wish Foundation",
-    "Water.org"
-  ]
 
   const handleSaveProfile = async (e) => {
     e.preventDefault()
@@ -158,22 +148,6 @@ export default function Profile() {
                   placeholder="Your Name"
                   required
                 />
-              </div>
-
-              <div className="pt-4 border-t border-gray-100">
-                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1.5">
-                  <Heart className="h-4 w-4 text-rose-500" /> Selected Charity
-                </label>
-                <p className="text-sm text-gray-500 mb-3">10% of your subscription goes directly to this organization.</p>
-                <select 
-                  value={charity}
-                  onChange={(e) => setCharity(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none transition appearance-none bg-white"
-                >
-                  {charities.map((c, i) => (
-                    <option key={i} value={c}>{c}</option>
-                  ))}
-                </select>
               </div>
 
               <div className="pt-6 flex justify-end">
