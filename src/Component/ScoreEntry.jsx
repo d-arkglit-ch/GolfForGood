@@ -134,11 +134,11 @@ export default function ScoreEntry({ userId, onScoreChange }) {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-      <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-         Your Scores
-        <span className="text-sm font-normal text-gray-500">
-          ({scores.length}/5 entered)
+    <div className="bg-sand rounded-2xl border border-white/5 p-8 shadow-2xl shadow-black/20">
+      <h2 className="text-2xl font-serif italic font-bold text-golf mb-8 flex items-center justify-between">
+         The Patron's Record
+        <span className="text-[10px] uppercase font-black tracking-widest opacity-30 bg-tan px-3 py-1 rounded-full border border-white/5">
+          {scores.length} / 5 Logged
         </span>
       </h2>
 
@@ -149,7 +149,7 @@ export default function ScoreEntry({ userId, onScoreChange }) {
       )}
 
       {/* Add Score Form */}
-      <form onSubmit={handleAdd} className="mb-6 flex gap-3">
+      <form onSubmit={handleAdd} className="mb-10 flex gap-4">
         <input
           type="number"
           min="1"
@@ -157,7 +157,7 @@ export default function ScoreEntry({ userId, onScoreChange }) {
           value={newScore}
           onChange={(e) => setNewScore(e.target.value)}
           placeholder="Score (1-45)"
-          className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
+          className="flex-1 px-6 py-3 bg-ivory border border-olive/10 rounded-full text-[11px] uppercase tracking-widest font-bold outline-none focus:border-olive transition-all shadow-inner shadow-olive/5"
           required
         />
         <input
@@ -165,16 +165,16 @@ export default function ScoreEntry({ userId, onScoreChange }) {
           value={newDate}
           onChange={(e) => setNewDate(e.target.value)}
           max={new Date().toISOString().split('T')[0]}
-          className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
+          className="flex-1 px-6 py-3 bg-ivory border border-olive/10 rounded-full text-[11px] uppercase tracking-widest font-bold outline-none focus:border-olive transition-all shadow-inner shadow-olive/5"
           required
         />
         <button
           type="submit"
           disabled={loading}
-          className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition disabled:opacity-50 flex items-center justify-center min-w-[44px]"
+          className="bg-olive text-white px-8 py-3 rounded-full hover:bg-olive/90 transition shadow-xl shadow-olive/10 disabled:opacity-20 flex items-center justify-center min-w-[56px]"
         >
           {loading ? (
-            <img src="/golf-green.gif" alt="..." className="h-5 w-5 object-contain" />
+             <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white" />
           ) : (
             <Plus className="h-5 w-5" />
           )}
@@ -182,8 +182,8 @@ export default function ScoreEntry({ userId, onScoreChange }) {
       </form>
 
       {scores.length >= 5 && (
-        <p className="mb-4 text-sm text-amber-600 bg-amber-50 p-3 rounded-lg">
-          5 scores stored. Adding a new score will automatically replace the oldest.
+        <p className="mb-6 text-[10px] uppercase font-bold tracking-widest text-olive/60 bg-olive/[0.03] p-4 rounded-xl border border-olive/5 italic text-center">
+          Legacy limit reached. Subsequent entries will archive the oldest record.
         </p>
       )}
 
@@ -195,8 +195,8 @@ export default function ScoreEntry({ userId, onScoreChange }) {
           scores.map((score, index) => (
             <div
               key={score.id}
-              className={`flex items-center justify-between p-4 rounded-lg border ${
-                index === 0 ? 'bg-primary-50 border-primary-200' : 'bg-gray-50 border-gray-100'
+              className={`flex items-center justify-between p-6 rounded-2xl border transition-all duration-700 hover:shadow-lg hover:shadow-black/5 ${
+                index === 0 ? 'bg-tan border-white/10' : 'bg-sand border-white/5'
               }`}
             >
               {editingId === score.id ? (
@@ -234,18 +234,20 @@ export default function ScoreEntry({ userId, onScoreChange }) {
                 </>
               ) : (
                 <>
-                  <div>
-                    <span className="text-2xl font-bold text-primary-600">
+                  <div className="flex items-center gap-6">
+                    <span className={`text-4xl font-serif italic font-black ${index === 0 ? 'text-olive' : 'text-golf/20'}`}>
                       {score.score}
                     </span>
-                    <span className="text-gray-500 ml-3">
-                      {new Date(score.date_played).toLocaleDateString()}
-                    </span>
-                    {index === 0 && (
-                      <span className="ml-2 text-xs bg-primary-100 text-primary-700 px-2 py-1 rounded">
-                        Latest
+                    <div className="flex flex-col">
+                      <span className="text-[10px] uppercase font-bold tracking-widest opacity-30">
+                        {new Date(score.date_played).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
                       </span>
-                    )}
+                      {index === 0 && (
+                        <span className="text-[8px] uppercase font-black tracking-[0.3em] text-olive mt-1">
+                          Most Recent Achievement
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div className="flex gap-2">
                     <button

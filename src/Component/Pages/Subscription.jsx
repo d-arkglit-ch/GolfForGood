@@ -151,91 +151,80 @@ export default function Subscription() {
 
   if (isSubscribed) {
     return (
-      <div className="min-h-screen bg-surface-950 text-white">
-        <nav className="border-b border-white/5">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center">
-            <Link to="/" className="flex items-center gap-2.5">
-              <div className="bg-gradient-to-br from-primary-400 to-primary-600 p-2 rounded-xl">
-                <LandPlot className="h-5 w-5 text-white" />
-              </div>
-              <span className="text-xl font-bold">
-                Golf<span className="text-primary-400">Charity</span>
-              </span>
-            </Link>
-          </div>
+      <div className="min-h-screen bg-ivory text-golf font-sans selection:bg-tan/30 overflow-x-hidden">
+        <nav className="relative z-50 border-b border-golf/10 px-6 sm:px-12 py-10 flex justify-between items-end bg-ivory">
+          <Link to="/" className="flex flex-col">
+            <span className="text-[10px] uppercase tracking-[0.3em] font-medium opacity-40 mb-1 leading-none italic text-olive">Established 2026</span>
+            <span className="text-xl font-display font-black leading-none tracking-tighter italic text-golf">Golf For Good</span>
+          </Link>
+          <Link to="/dashboard" className="text-[11px] uppercase tracking-[0.2em] font-bold border-b border-golf/40 pb-1 hover:border-golf transition-colors">
+            Dashboard
+          </Link>
         </nav>
 
-        <div className="max-w-lg mx-auto px-4 py-20 text-center">
+        <div className="max-w-lg mx-auto px-6 py-24 text-center">
           <div className="animate-fade-in-up">
-            <div className="inline-flex p-4 bg-primary-500/10 rounded-2xl mb-6">
-              <Check className="h-10 w-10 text-primary-400" />
+            <div className="inline-flex p-5 bg-olive/5 rounded-full mb-8">
+              <Check className="h-10 w-10 text-olive" />
             </div>
-            <h1 className="text-3xl font-bold mb-3">You're a VIP Member!</h1>
-            <p className="text-surface-400 mb-8">
-              Thank you for supporting GolfCharity. Your active plan details are below.
+            <h1 className="text-5xl font-serif italic mb-4">Membership Active</h1>
+            <p className="text-sm uppercase tracking-widest opacity-60 mb-12 max-w-xs mx-auto">
+              Welcome to the inner circle. Your dedication to the game and the cause is noted.
             </p>
 
             {/* Active Plan Details Card */}
-            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 md:p-8 mb-10 text-left relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-primary-500/10 blur-2xl rounded-full" />
-              
-              <div className="flex items-center justify-between mb-6">
-                <span className="bg-primary-500/20 text-primary-400 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">
-                  Active Plan
+            <div className="bg-tan/40 border border-white/5 rounded-2xl p-10 mb-12 text-left relative overflow-hidden backdrop-blur-xl shadow-2xl shadow-black/40">
+              <div className="flex items-center justify-between mb-8">
+                <span className="bg-olive/20 text-olive px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] border border-olive/10">
+                  VIP Privilege
                 </span>
-                <span className="flex items-center gap-1.5 text-sm text-surface-400">
-                  <Shield className="h-4 w-4" />
-                  Secured
+                <span className="flex items-center gap-2 text-[10px] uppercase font-bold opacity-40">
+                  <Shield className="h-3 w-3" />
+                  Verified
                 </span>
               </div>
 
-              <h2 className="text-2xl font-bold text-white mb-1">
+              <h2 className="text-3xl font-serif italic text-golf mb-2">
                 {subscription?.plan_type || 'Monthly Access'}
               </h2>
-              <p className="text-surface-400 text-sm mb-6">
-                Billed automatically via Razorpay
+              <p className="text-xs opacity-50 mb-8 font-medium">
+                Recurring support via secured channels
               </p>
 
-              <div className="grid grid-cols-2 gap-4 pt-6 border-t border-white/10">
+              <div className="grid grid-cols-2 gap-8 pt-8 border-t border-olive/5">
                 <div>
-                  <p className="text-surface-500 text-xs uppercase font-semibold tracking-wider mb-1">Status</p>
-                  <p className="text-emerald-400 font-bold flex items-center gap-1.5">
-                    <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                    Active
+                  <p className="text-[10px] uppercase font-bold tracking-widest opacity-40 mb-2">Account Status</p>
+                  <p className="text-olive font-bold flex items-center gap-2 text-sm italic">
+                    <div className="w-1.5 h-1.5 rounded-full bg-olive animate-pulse" />
+                    Distinguished
                   </p>
                 </div>
                 <div>
-                  <p className="text-surface-500 text-xs uppercase font-semibold tracking-wider mb-1">Next Billing</p>
-                  <p className="text-white font-medium">
+                  <p className="text-[10px] uppercase font-bold tracking-widest opacity-40 mb-2">Next Occasion</p>
+                  <p className="text-golf font-serif italic text-lg">
                     {subscription?.current_period_end 
-                      ? new Date(subscription.current_period_end).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })
-                      : 'Unknown'}
+                      ? new Date(subscription.current_period_end).toLocaleDateString('en-GB', { month: 'long', day: 'numeric', year: 'numeric' })
+                      : 'Rolling'}
                   </p>
                 </div>
               </div>
             </div>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+
+            <div className="flex flex-col gap-6 items-center">
               <Link
                 to="/dashboard"
-                className="group inline-flex items-center gap-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white px-8 py-4 rounded-2xl font-bold hover:from-primary-400 hover:to-primary-500 transition-all duration-300 shadow-xl shadow-primary-500/30 w-full sm:w-auto justify-center"
+                className="group inline-flex items-center gap-4 bg-golf text-ivory px-12 py-4 rounded-full text-[11px] uppercase tracking-[0.2em] font-bold hover:opacity-90 transition-all duration-500 shadow-2xl shadow-black/20"
               >
-                Go to Dashboard
-                <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                Enter Clubhouse
+                <ArrowRight className="h-4 w-4 group-hover:translate-x-2 transition-transform" />
               </Link>
               
               <button
                 onClick={handleCancelSubscription}
                 disabled={loading}
-                className="group inline-flex items-center gap-2.5 bg-transparent border border-red-500/30 text-red-400 px-8 py-4 rounded-2xl font-bold hover:bg-red-500/5 transition-all duration-300 w-full sm:w-auto justify-center disabled:opacity-50"
+                className="text-[10px] uppercase tracking-widest font-bold opacity-30 hover:opacity-100 hover:text-red-700 transition-all disabled:opacity-10"
               >
-                {loading ? (
-                  <img src="/golf-green.gif" alt="..." className="h-5 w-5 object-contain" />
-                ) : (
-                  <>
-                    <X className="h-5 w-5" />
-                    Cancel Subscription
-                  </>
-                )}
+                {loading ? 'Processing...' : 'Relinquish Membership'}
               </button>
             </div>
           </div>
@@ -247,142 +236,124 @@ export default function Subscription() {
   // Success state
   if (success) {
     return (
-      <div className="min-h-screen bg-surface-950 text-white flex items-center justify-center px-4">
+      <div className="min-h-screen bg-ivory text-golf flex items-center justify-center px-4">
         <div className="text-center animate-fade-in-up">
-          <div className="inline-flex p-5 bg-primary-500/10 rounded-full mb-6 animate-pulse-glow">
-            <Sparkles className="h-12 w-12 text-primary-400" />
+          <div className="inline-flex p-6 bg-tan border border-white/5 rounded-full mb-8">
+            <Sparkles className="h-12 w-12 text-olive animate-float" />
           </div>
-          <h1 className="text-3xl font-bold mb-3">Welcome to GolfCharity! 🎉</h1>
-          <p className="text-surface-400 text-lg mb-2">
-            Your Razorpay subscription is now active!
+          <h1 className="text-5xl font-serif italic mb-4">Welcome</h1>
+          <p className="text-sm uppercase tracking-[0.3em] opacity-60 mb-8">
+            The transition is complete. Redirecting you...
           </p>
-          <p className="text-surface-500 text-sm flex items-center justify-center gap-2">
-            <img src="/golf-green.gif" alt="..." className="h-4 w-4 object-contain" />
-            Redirecting to dashboard...
-          </p>
+          <div className="flex justify-center opacity-20">
+             <RefreshCw className="h-6 w-6 animate-spin stroke-[1px]" />
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-surface-950 text-white overflow-hidden">
-      {/* Ambient background */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/3 w-[500px] h-[500px] bg-primary-500/8 rounded-full blur-[120px]" />
-        <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-accent-500/6 rounded-full blur-[100px]" />
-      </div>
-
-      {/* Navbar */}
-      <nav className="relative z-50 border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="relative">
-              <div className="absolute inset-0 bg-primary-500 rounded-xl blur-md opacity-40 group-hover:opacity-60 transition-opacity" />
-              <div className="relative bg-gradient-to-br from-primary-400 to-primary-600 p-2 rounded-xl">
-                <LandPlot className="h-5 w-5 text-white" />
-              </div>
-            </div>
-            <span className="text-xl font-bold">
-              Golf<span className="text-primary-400">Charity</span>
-            </span>
-          </Link>
-          <Link
-            to="/"
-            className="text-surface-400 hover:text-white text-sm flex items-center gap-1.5 transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Home
-          </Link>
+    <div className="min-h-screen bg-ivory text-golf font-sans selection:bg-tan/30 overflow-x-hidden">
+      
+      {/* Editorial Header */}
+      <nav className="relative z-50 border-b border-golf/10 px-6 sm:px-12 py-10 flex justify-between items-end bg-ivory">
+        <div className="flex flex-col">
+          <span className="text-[10px] uppercase tracking-[0.3em] font-medium opacity-40 mb-1 leading-none italic text-olive">Established 2026</span>
+          <span className="text-xl font-display font-black leading-none tracking-tighter italic text-golf">Golf For Good</span>
         </div>
+        <Link to="/" className="text-[11px] uppercase tracking-[0.2em] font-bold opacity-40 hover:opacity-100 transition-opacity flex items-center gap-2">
+          <ArrowLeft className="h-3 w-3 text-olive" />
+          Return
+        </Link>
       </nav>
 
       {/* Main Content */}
-      <main className="relative z-10 max-w-5xl mx-auto px-4 py-16 sm:py-20">
+      <main className="relative z-10 max-w-5xl mx-auto px-6 py-24 sm:py-32">
         {/* Header */}
-        <div className="text-center mb-14 animate-fade-in-up">
-          <span className="inline-flex items-center gap-2 bg-accent-500/10 border border-accent-500/20 text-accent-300 px-4 py-2 rounded-full text-sm font-medium mb-6">
-            <Star className="h-4 w-4" />
-            Simple pricing, big impact
+        <div className="text-center mb-24 animate-fade-in-up">
+          <span className="inline-flex items-center gap-3 bg-tan/40 border border-white/10 text-olive px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.3em] mb-10 backdrop-blur-md">
+            <Star className="h-3 w-3 fill-current" />
+            The Patron's Pass
           </span>
-          <h1 className="text-4xl sm:text-5xl font-extrabold mb-4">
-            Activate Your Pass
+          <h1 className="text-6xl sm:text-8xl font-serif italic leading-tight mb-8">
+            Join the <br/> Legacy
           </h1>
-          <p className="text-surface-400 text-lg max-w-xl mx-auto">
-            Subscribe to enter your scores, compete in monthly draws, and support local charities!
+          <p className="text-sm uppercase tracking-widest opacity-60 max-w-lg mx-auto font-medium leading-relaxed">
+            Exclusive access to tournament draws, detailed performance metrics, and a direct line of impact to global charities.
           </p>
         </div>
 
         {error && (
-          <div className="max-w-md mx-auto mb-8 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm text-center animate-fade-in flex flex-col items-center">
-            <span className="font-bold">Error</span>
-            <span>{error}</span>
+          <div className="max-w-md mx-auto mb-16 p-6 bg-red-50 border border-red-100 rounded-xl text-red-800 text-[11px] uppercase tracking-widest font-bold text-center animate-fade-in shadow-xl shadow-red-900/5">
+            {error}
           </div>
         )}
 
         {/* Pricing Card */}
         <div className="max-w-md mx-auto animate-fade-in-up animation-delay-200">
-          <div className="relative glass rounded-3xl p-8 sm:p-10 border border-primary-500/20 hover:border-primary-500/40 transition-colors duration-300">
-            {/* Popular badge */}
-            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-              <span className="bg-gradient-to-r from-primary-500 to-primary-600 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg shadow-primary-500/30">
-                MVP ACCESS
-              </span>
-            </div>
+           <div className="relative group">
+              {/* Decorative shadow layer */}
+              <div className="absolute inset-4 bg-olive/5 blur-3xl rounded-full opacity-50 group-hover:opacity-100 transition-opacity duration-1000 -z-10" />
+              
+              <div className="bg-tan/40 border border-white/5 rounded-2xl p-10 sm:p-12 text-center backdrop-blur-xl relative overflow-hidden shadow-2xl shadow-black/40">
+                <div className="absolute top-0 right-0 p-8 opacity-5">
+                   <LandPlot className="h-24 w-24 stroke-[1px] text-golf" />
+                </div>
 
-            {/* Plan header */}
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-white mb-2">Monthly</h2>
-              <div className="flex items-baseline justify-center gap-1">
-                <span className="text-5xl font-extrabold text-white">₹5</span>
-                <span className="text-surface-400 text-lg">/month</span>
+                <h2 className="text-[11px] uppercase tracking-[0.4em] font-black opacity-30 mb-8">Sustaining Member</h2>
+                
+                <div className="flex items-baseline justify-center gap-2 mb-2">
+                  <span className="text-7xl font-display font-black tracking-tighter italic">₹5</span>
+                  <span className="text-sm uppercase tracking-widest font-bold opacity-30">/mo</span>
+                </div>
+                <p className="text-[9px] uppercase tracking-widest font-bold opacity-40 mb-12 italic border-y border-olive/5 py-4">Secure monthly Contribution</p>
+
+                {/* Features */}
+                <div className="space-y-6 mb-12 text-left">
+                  <PlanFeature icon={<Trophy className="h-4 w-4" />} text="Tournament Tier Eligibility" />
+                  <PlanFeature icon={<Trophy className="h-4 w-4" />} text="Advanced Performance Analytics" />
+                  <PlanFeature icon={<Heart className="h-4 w-4" />} text="10% Dedicated Charity Pool" />
+                  <PlanFeature icon={<Shield className="h-4 w-4" />} text="Verified Transaction Trust" />
+                </div>
+
+                {/* CTA */}
+                <button
+                  onClick={handleSubscribe}
+                  disabled={loading}
+                  className="w-full bg-golf text-ivory py-5 rounded-full font-bold text-[11px] uppercase tracking-[0.3em] hover:opacity-90 transition-all duration-500 shadow-2xl shadow-black/20 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-4"
+                >
+                  {loading ? 'Commencing...' : (
+                    <>
+                      Secure with Razorpay
+                      <ArrowRight className="h-4 w-4" />
+                    </>
+                  )}
+                </button>
+
+                <p className="text-[9px] uppercase tracking-[0.2em] font-bold opacity-20 mt-8">
+                  UPI • Cards • Trusted by High Plains
+                </p>
               </div>
-              <p className="text-surface-500 text-sm mt-2">Auto-renews securely via Razorpay</p>
-            </div>
-
-            {/* Divider */}
-            <div className="h-px bg-white/10 mb-8" />
-
-            {/* Features */}
-            <div className="space-y-4 mb-10">
-              <PlanFeature icon={<Trophy className="h-4 w-4" />} text="Enter monthly prize draws" />
-              <PlanFeature icon={<Zap className="h-4 w-4" />} text="Track exact score history algorithms" />
-              <PlanFeature icon={<Heart className="h-4 w-4" />} text="10% minimum guaranteed to charity" />
-              <PlanFeature icon={<Star className="h-4 w-4" />} text="Jackpot rollover (40% pool)" />
-              <PlanFeature icon={<Shield className="h-4 w-4" />} text="100% SECURE payments via Razorpay" />
-            </div>
-
-            {/* CTA */}
-            <button
-              onClick={handleSubscribe}
-              disabled={loading}
-              className="group w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white py-4 rounded-2xl font-bold text-lg hover:from-emerald-400 hover:to-emerald-500 transition-all duration-300 shadow-xl shadow-emerald-500/25 hover:shadow-emerald-500/40 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2.5"
-            >
-              {loading ? (
-                <img src="/golf-green.gif" alt="Loading..." className="h-6 w-6 object-contain" />
-              ) : (
-                <>
-                  <CreditCard className="h-5 w-5" />
-                  Pay with Razorpay
-                  <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </>
-              )}
-            </button>
-
-            <p className="text-center text-xs text-surface-500 mt-4 flex items-center justify-center gap-1.5">
-              <Shield className="h-3.5 w-3.5" />
-              Secured by Razorpay • UPI & Cards accepted
-            </p>
-          </div>
+           </div>
         </div>
 
-        {/* Trust signals */}
-        <div className="mt-14 animate-fade-in-up animation-delay-400">
-          <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto">
-            <TrustCard value="500+" label="Players" />
-            <TrustCard value="₹120K" label="Won" />
-            <TrustCard value="₹48K" label="Donated" />
-          </div>
+        {/* Global Statistics */}
+        <div className="mt-32 max-w-xl mx-auto opacity-40 grayscale group hover:grayscale-0 transition-all duration-1000">
+           <div className="grid grid-cols-3 gap-8 text-center">
+              <div className="space-y-2">
+                <p className="text-2xl font-serif italic font-bold">500+</p>
+                <p className="text-[9px] uppercase tracking-widest font-bold">Patrons</p>
+              </div>
+              <div className="space-y-2">
+                <p className="text-2xl font-serif italic font-bold">₹120K</p>
+                <p className="text-[9px] uppercase tracking-widest font-bold">Distributions</p>
+              </div>
+              <div className="space-y-2">
+                <p className="text-2xl font-serif italic font-bold">₹48K</p>
+                <p className="text-[9px] uppercase tracking-widest font-bold">Impact</p>
+              </div>
+           </div>
         </div>
       </main>
     </div>
@@ -393,20 +364,20 @@ export default function Subscription() {
 
 function PlanFeature({ icon, text }) {
   return (
-    <div className="flex items-center gap-3">
-      <div className="flex-shrink-0 bg-primary-500/10 text-primary-400 p-1.5 rounded-lg">
+    <div className="flex items-center gap-4 py-1 border-b border-olive/5 last:border-0">
+      <div className="text-olive/40 stroke-[1px]">
         {icon}
       </div>
-      <span className="text-surface-300 text-sm">{text}</span>
+      <span className="text-[10px] uppercase tracking-widest font-bold opacity-70">{text}</span>
     </div>
   )
 }
 
 function TrustCard({ value, label }) {
   return (
-    <div className="text-center glass rounded-xl p-4">
-      <div className="text-lg font-bold text-white">{value}</div>
-      <div className="text-xs text-surface-500">{label}</div>
+    <div className="text-center bg-tan/20 border border-white/5 rounded-xl p-4 backdrop-blur-sm shadow-inner">
+      <div className="text-lg font-bold text-golf">{value}</div>
+      <div className="text-xs opacity-40 uppercase tracking-widest font-bold">{label}</div>
     </div>
   )
 }

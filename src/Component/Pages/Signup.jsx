@@ -54,60 +54,61 @@ export default function Signup() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center">
-          <Link to="/" className="flex items-center gap-2">
-            <LandPlot className="h-8 w-8 text-primary-600" />
-            <span className="text-xl font-bold text-gray-900">GolfCharity</span>
-          </Link>
-        </div>
-      </div>
+    <div className="min-h-screen bg-ivory text-golf font-sans selection:bg-tan/30 leading-relaxed">
+      {/* Editorial Header */}
+      <header className="relative z-50 border-b border-golf/10 px-6 sm:px-12 py-10 flex justify-between items-end bg-ivory">
+        <Link to="/" className="flex flex-col">
+          <span className="text-[10px] uppercase tracking-[0.3em] font-medium opacity-40 mb-1 leading-none italic text-olive">Established 2026</span>
+          <span className="text-xl font-display font-black leading-none tracking-tighter italic text-golf">Golf For Good</span>
+        </Link>
+        <Link to="/login" className="text-[11px] uppercase tracking-[0.2em] font-bold border-b border-golf/40 pb-1 hover:border-golf transition-colors">
+          Log In
+        </Link>
+      </header>
 
       {/* Signup Form */}
-      <div className="flex-1 flex items-center justify-center px-4 py-12">
+      <div className="flex-1 flex items-center justify-center px-4 py-20 animate-fade-in-up">
         <div className="w-full max-w-md">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
-            <div className="text-center mb-8">
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                Create your account
+          <div className="bg-tan/40 border border-white/5 rounded-2xl p-10 backdrop-blur-xl shadow-2xl shadow-black/40">
+            <div className="text-center mb-12">
+              <h1 className="text-4xl font-serif italic font-bold text-golf mb-4">
+                Join the Legacy
               </h1>
-              <p className="text-gray-600">
-                Start playing, giving, and winning today
+              <p className="text-[10px] uppercase tracking-[0.2em] font-bold opacity-40 italic">
+                Start playing, giving, and winning today.
               </p>
             </div>
 
             {/* Benefits */}
-            <div className="mb-6 space-y-2">
+            <div className="mb-10 space-y-2">
               <BenefitItem text="Enter unlimited golf scores" />
               <BenefitItem text="Win monthly cash prizes" />
               <BenefitItem text="Support charities with every round" />
             </div>
 
             {error && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-lg text-red-600 text-sm">
+              <div className="mb-8 p-6 bg-red-950/40 border border-red-900/20 rounded-xl text-red-200 text-[10px] uppercase tracking-widest font-bold text-center">
                 {error}
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Full name
+                <label className="block text-[10px] uppercase font-bold tracking-[0.2em] text-olive/40 mb-3 italic">
+                  Identity
                 </label>
                 <input
                   type="text"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition"
-                  placeholder="John Smith"
+                  className="w-full px-6 py-4 bg-ivory border border-white/10 rounded-full font-serif italic text-lg text-golf focus:border-olive outline-none transition-all duration-500 shadow-inner"
+                  placeholder="Your Full Name"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-[10px] uppercase font-bold tracking-[0.2em] text-olive/40 mb-3 italic">
                   Email address
                 </label>
                 <input
@@ -115,14 +116,14 @@ export default function Signup() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition"
+                  className="w-full px-6 py-4 bg-ivory border border-white/10 rounded-full font-serif italic text-lg text-golf focus:border-olive outline-none transition-all duration-500 shadow-inner"
                   placeholder="you@example.com"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Password
+                <label className="block text-[10px] uppercase font-bold tracking-[0.2em] text-olive/40 mb-3 italic">
+                  Secret Sequence
                 </label>
                 <div className="relative">
                   <input
@@ -130,21 +131,13 @@ export default function Signup() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition pr-12 ${
-                      password.length > 0
-                        ? passwordStrength === 5
-                          ? 'border-green-400'
-                          : passwordStrength >= 3
-                            ? 'border-amber-400'
-                            : 'border-red-300'
-                        : 'border-gray-300'
-                    }`}
-                    placeholder="Create a strong password"
+                    className="w-full px-6 py-4 bg-ivory border border-white/10 rounded-full font-serif italic text-lg text-golf focus:border-olive outline-none transition-all duration-500 shadow-inner pr-16"
+                    placeholder="••••••••"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-6 top-1/2 -translate-y-1/2 text-olive/30 hover:text-olive transition-colors"
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
@@ -152,26 +145,26 @@ export default function Signup() {
 
                 {/* Strength Meter Bar */}
                 {password.length > 0 && (
-                  <div className="mt-3 space-y-3">
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="mt-6 space-y-4">
+                    <div className="flex items-center gap-4">
+                      <div className="flex-1 h-1 bg-golf/10 rounded-full overflow-hidden">
                         <div
                           className={`h-full rounded-full transition-all duration-500 ${
-                            passwordStrength <= 1 ? 'bg-red-500' :
-                            passwordStrength <= 2 ? 'bg-orange-500' :
-                            passwordStrength <= 3 ? 'bg-amber-500' :
-                            passwordStrength <= 4 ? 'bg-lime-500' :
-                            'bg-green-500'
+                            passwordStrength <= 1 ? 'bg-red-900' :
+                            passwordStrength <= 2 ? 'bg-orange-900' :
+                            passwordStrength <= 3 ? 'bg-amber-700' :
+                            passwordStrength <= 4 ? 'bg-olive/60' :
+                            'bg-olive'
                           }`}
                           style={{ width: `${(passwordStrength / 5) * 100}%` }}
                         />
                       </div>
-                      <span className={`text-xs font-bold ${
-                        passwordStrength <= 1 ? 'text-red-600' :
-                        passwordStrength <= 2 ? 'text-orange-600' :
-                        passwordStrength <= 3 ? 'text-amber-600' :
-                        passwordStrength <= 4 ? 'text-lime-600' :
-                        'text-green-600'
+                      <span className={`text-[9px] uppercase tracking-widest font-bold ${
+                        passwordStrength <= 1 ? 'text-red-900' :
+                        passwordStrength <= 2 ? 'text-orange-900' :
+                        passwordStrength <= 3 ? 'text-amber-700' :
+                        passwordStrength <= 4 ? 'text-olive/60' :
+                        'text-olive'
                       }`}>
                         {passwordStrength <= 1 ? 'Weak' :
                          passwordStrength <= 2 ? 'Fair' :
@@ -182,10 +175,10 @@ export default function Signup() {
                     </div>
 
                     {/* Per-rule checklist */}
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                    <div className="grid grid-cols-2 gap-x-6 gap-y-2">
                       {passwordRules.map((rule, i) => (
-                        <div key={i} className={`flex items-center gap-1.5 text-xs transition-colors ${rule.met ? 'text-green-600' : 'text-gray-400'}`}>
-                          {rule.met ? <CheckCircle className="h-3.5 w-3.5 flex-shrink-0" /> : <div className="w-3.5 h-3.5 rounded-full border border-gray-300 flex-shrink-0" />}
+                        <div key={i} className={`flex items-center gap-1.5 text-[9px] uppercase font-bold tracking-widest transition-colors ${rule.met ? 'text-olive' : 'text-golf/10'}`}>
+                          {rule.met ? <CheckCircle className="h-3.5 w-3.5 flex-shrink-0" /> : <div className="w-3.5 h-3.5 rounded-full border border-white/10 flex-shrink-0" />}
                           {rule.label}
                         </div>
                       ))}
@@ -194,41 +187,41 @@ export default function Signup() {
                 )}
               </div>
 
-              <div className="flex items-start gap-3">
+              <div className="flex items-start gap-3 pt-4">
                 <input
                   type="checkbox"
                   id="terms"
                   checked={agreeTerms}
                   onChange={(e) => setAgreeTerms(e.target.checked)}
-                  className="mt-1 h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                  className="mt-1 h-4 w-4 bg-ivory border-golf/20 rounded text-olive focus:ring-olive"
                 />
-                <label htmlFor="terms" className="text-sm text-gray-600">
+                <label htmlFor="terms" className="text-[10px] uppercase tracking-widest font-bold opacity-60">
                   I agree to the{' '}
-                  <Link to="/" className="text-primary-600 hover:text-primary-700">Terms of Service</Link>
+                  <Link to="/" className="text-olive underline decoration-olive/30 underline-offset-4">Terms</Link>
                   {' '}and{' '}
-                  <Link to="/" className="text-primary-600 hover:text-primary-700">Privacy Policy</Link>
+                  <Link to="/" className="text-olive underline decoration-olive/30 underline-offset-4">Privacy Policy</Link>
                 </label>
               </div>
 
               <button
                 type="submit"
                 disabled={loading || (password.length > 0 && !isPasswordValid)}
-                className="w-full bg-primary-600 text-white py-3 rounded-lg font-semibold hover:bg-primary-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full bg-golf text-ivory py-5 rounded-full font-bold text-[11px] uppercase tracking-[0.3em] hover:opacity-90 transition-all duration-500 shadow-2xl shadow-black/20 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-4"
               >
                 {loading ? (
-                  <img src="/golf-green.gif" alt="Loading..." className="h-6 w-6 object-contain" />
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-ivory/30 border-t-ivory" />
                 ) : (
                   <>
-                    Create Account <ArrowRight className="h-5 w-5" />
+                    Secure Registry <ArrowRight className="h-4 w-4" />
                   </>
                 )}
               </button>
             </form>
 
-            <div className="mt-6 text-center">
-              <p className="text-gray-600">
+            <div className="mt-8 text-center">
+              <p className="text-[10px] uppercase tracking-widest font-bold opacity-40">
                 Already have an account?{' '}
-                <Link to="/login" className="text-primary-600 font-semibold hover:text-primary-700">
+                <Link to="/login" className="text-olive underline decoration-olive/30 underline-offset-4 ml-2">
                   Sign in
                 </Link>
               </p>
@@ -243,9 +236,9 @@ export default function Signup() {
 // Helper Component
 function BenefitItem({ text }) {
   return (
-    <div className="flex items-center gap-2 text-sm text-gray-600">
-      <CheckCircle className="h-4 w-4 text-primary-600 flex-shrink-0" />
-      <span>{text}</span>
+    <div className="flex items-center gap-3 py-2 border-b border-golf/5 last:border-0 opacity-60">
+      <CheckCircle className="h-4 w-4 text-olive stroke-[2px]" />
+      <span className="text-[11px] uppercase tracking-widest font-bold italic">{text}</span>
     </div>
   )
 }

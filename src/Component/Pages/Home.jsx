@@ -1,426 +1,159 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import {
-  Trophy,
-  Heart,
-  LandPlot,
-  ArrowRight,
-  CheckCircle,
-  Sparkles,
-  Users,
-  TrendingUp,
-  Shield,
-  Star,
-  Zap,
-  DollarSign,
-  Gift,
-} from 'lucide-react'
+import { Plus, ArrowRight } from 'lucide-react'
 
 export default function Home() {
-  const { user, isSubscribed } = useAuth()
+  const { user } = useAuth()
 
   return (
-    <div className="min-h-screen bg-surface-950 text-white overflow-hidden">
-      {/* Ambient background gradients */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-primary-500/10 rounded-full blur-[120px]" />
-        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-accent-500/8 rounded-full blur-[100px]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary-600/5 rounded-full blur-[150px]" />
-      </div>
+    <div className="min-h-screen bg-ivory text-golf font-sans selection:bg-tan/30 overflow-x-hidden">
+      {/* Editorial Header / Navigation */}
+      <header className="relative z-50 border-b border-golf/10 px-6 sm:px-12 py-10 flex justify-between items-end bg-ivory">
+        <div className="flex flex-col">
+          <span className="text-[10px] uppercase tracking-[0.3em] font-medium opacity-40 mb-1 leading-none italic text-olive">Established</span>
+          <span className="text-xl font-display font-black leading-none tracking-tighter italic text-golf">2026</span>
+        </div>
 
-      {/* Navbar */}
-      <nav className="relative z-50 border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-18">
-            <Link to="/" className="flex items-center gap-2.5 group">
-              <div className="relative">
-                <div className="absolute inset-0 bg-primary-500 rounded-xl blur-md opacity-40 group-hover:opacity-60 transition-opacity" />
-                <div className="relative bg-gradient-to-br from-primary-400 to-primary-600 p-2 rounded-xl">
-                  <LandPlot className="h-5 w-5 text-white" />
+        {/* <nav className="hidden md:flex gap-12 text-[11px] uppercase tracking-[0.2em] font-semibold opacity-70">
+          <Link to="/" className="hover:text-olive transition-colors">Membership</Link>
+          <Link to="/" className="hover:text-olive transition-colors">Impact</Link>
+          <Link to="/" className="hover:text-olive transition-colors">The Draw</Link>
+          <Link to="/" className="hover:text-olive transition-colors">Archives</Link>
+        </nav> */}
+
+        <div className="flex gap-8 items-center">
+          {user ? (
+            <Link to="/dashboard" className="text-[11px] uppercase tracking-[0.2em] font-bold border-b border-golf/40 pb-1 hover:border-golf transition-colors">
+              Enter Dashboard
+            </Link>
+          ) : (
+            <>
+              <Link to="/login" className="text-[11px] uppercase tracking-[0.2em] font-bold opacity-60 hover:opacity-100 transition-opacity">
+                Log In
+              </Link>
+              <Link to="/signup" className="text-[11px] uppercase tracking-[0.2em] font-bold border-b border-olive/30 pb-1 hover:border-olive transition-colors">
+                Register
+              </Link>
+            </>
+          )}
+        </div>
+      </header>
+
+      {/* Main Hero Context */}
+      <main className="px-6 sm:px-12 pt-16 pb-32 max-w-[1600px] mx-auto">
+        
+        {/* Decorative elements */}
+        <div className="flex justify-center mb-12 opacity-20">
+          <Plus className="h-8 w-8 stroke-[1px]" />
+        </div>
+
+        {/* The Big Headline */}
+        <div className="text-center mb-20 relative">
+          <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-px h-24 bg-golf/10 hidden lg:block" />
+          <h1 className="text-[12vw] lg:text-[10rem] font-serif font-light leading-[0.8] uppercase tracking-[-0.04em] flex flex-col items-center">
+            <span className="block italic font-medium tracking-tight text-olive">Golf</span>
+            <span className="block mt-4 lg:mt-8 tracking-[-0.08em] text-golf">FOR GOOD</span>
+          </h1>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mt-24 items-start">
+             {/* Left Text Detail */}
+             <div className="text-left order-2 lg:order-1 max-w-sm">
+                <p className="text-sm leading-relaxed mb-8 opacity-80 uppercase tracking-wide">
+                  Experience the intersection of tradition and purpose. Join an exclusive community of golfers making a tangible impact with every round.
+                </p>
+                <Link 
+                  to="/signup" 
+                  className="inline-flex items-center gap-4 group border border-olive/20 px-10 py-4 rounded-full text-xs uppercase tracking-[0.3em] font-bold hover:bg-olive hover:text-white transition-all duration-500"
+                >
+                  Join Us
+                  <ArrowRight className="h-4 w-4 group-hover:translate-x-2 transition-transform" />
+                </Link>
+             </div>
+
+             {/* Right Floating Badge */}
+              <div className="text-right order-1 lg:order-2">
+                <div className="inline-block text-left p-8 border border-white/5 bg-tan/40 backdrop-blur-xl rounded-2xl shadow-2xl shadow-black/40">
+                    <span className="block text-[10px] uppercase tracking-[0.3em] font-bold text-olive mb-3 underline decoration-olive/20 underline-offset-4 font-display italic">Winner matching</span>
+                    <span className="block text-2xl font-serif italic font-bold text-golf">10% Dedicated Pool</span>
+                    <span className="block text-[10px] mt-2 opacity-40 italic">Verified Charities Worldwide</span>
                 </div>
               </div>
-              <span className="text-xl font-bold tracking-tight">
-                Golf<span className="text-primary-400">Charity</span>
-              </span>
-            </Link>
+          </div>
+        </div>
 
-            <div className="flex items-center gap-3">
-              {user ? (
-                <Link
-                  to="/dashboard"
-                  className="group relative bg-gradient-to-r from-primary-500 to-primary-600 text-white px-5 py-2.5 rounded-xl font-semibold text-sm hover:from-primary-400 hover:to-primary-500 transition-all duration-300 shadow-lg shadow-primary-500/25 hover:shadow-primary-500/40 flex items-center gap-2"
-                >
-                  Go to Dashboard
-                  <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
-                </Link>
-              ) : (
-                <>
-                  <Link
-                    to="/login"
-                    className="text-surface-300 hover:text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors duration-200"
-                  >
-                    Log in
-                  </Link>
-                  <Link
-                    to="/signup"
-                    className="group relative bg-gradient-to-r from-primary-500 to-primary-600 text-white px-5 py-2.5 rounded-xl font-semibold text-sm hover:from-primary-400 hover:to-primary-500 transition-all duration-300 shadow-lg shadow-primary-500/25 hover:shadow-primary-500/40 flex items-center gap-2"
-                  >
-                    Get Started
-                    <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
-                  </Link>
-                </>
-              )}
+        {/* Editorial Imagery Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-[70vh] max-h-[800px]">
+          <div className="relative group overflow-hidden rounded-sm bg-sand">
+            <img 
+              src="/golf-aerial.png" 
+              alt="Aerial Golf Course" 
+              className="w-full h-full object-cover grayscale-[0.2] group-hover:scale-105 transition-transform duration-1000 opacity-90"
+            />
+            <div className="absolute inset-0 bg-golf/5 group-hover:bg-transparent transition-colors duration-500" />
+            <div className="absolute bottom-8 left-8 text-white z-10">
+               <span className="text-[10px] uppercase tracking-[0.3em] font-bold opacity-60 mb-1 block">Course Selection</span>
+               <span className="text-2xl font-serif italic">The High Plains</span>
+            </div>
+          </div>
+
+          <div className="relative group overflow-hidden rounded-sm bg-sand">
+            <img 
+              src="/golf-carts.png" 
+              alt="Luxury Golf Carts" 
+              className="w-full h-full object-cover grayscale-[0.2] group-hover:scale-105 transition-transform duration-1000 opacity-90"
+            />
+            <div className="absolute inset-0 bg-golf/5 group-hover:bg-transparent transition-colors duration-500" />
+            <div className="absolute bottom-8 left-8 text-white z-10">
+               <span className="text-[10px] uppercase tracking-[0.3em] font-bold opacity-60 mb-1 block">The Experience</span>
+               <span className="text-2xl font-serif italic text-white/90">Exclusive Access</span>
             </div>
           </div>
         </div>
-      </nav>
 
-      {/* Hero Section */}
-      <section className="relative z-10 pt-20 pb-28 px-4">
-        <div className="max-w-5xl mx-auto text-center">
-          {/* Badge */}
-          <div className="animate-fade-in-up inline-flex items-center gap-2 bg-primary-500/10 border border-primary-500/20 text-primary-300 px-4 py-2 rounded-full text-sm font-medium mb-8">
-            <Sparkles className="h-4 w-4" />
-            <span>Monthly draws • Real prizes • Real impact</span>
-          </div>
-
-          {/* Main Heading */}
-          <h1 className="animate-fade-in-up animation-delay-100 text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-tight tracking-tight mb-6">
-            Play Golf.{' '}
-            <span className="bg-gradient-to-r from-primary-400 via-primary-300 to-accent-400 bg-clip-text text-transparent animate-gradient">
-              Give Back.
-            </span>
-            <br />
-            Win Big.
-          </h1>
-
-          {/* Subtitle */}
-          <p className="animate-fade-in-up animation-delay-200 text-lg sm:text-xl text-surface-400 mb-10 max-w-2xl mx-auto leading-relaxed">
-            Enter your golf scores, support charities you care about, and compete
-            in monthly prize draws. Your game fuels a greater purpose.
-          </p>
-
-          {/* CTA Buttons */}
-          <div className="animate-fade-in-up animation-delay-300 flex flex-col sm:flex-row gap-4 justify-center items-center">
-            {user ? (
-              <Link
-                to="/dashboard"
-                className="group relative bg-gradient-to-r from-primary-500 to-primary-600 text-white px-8 py-4 rounded-2xl text-lg font-bold hover:from-primary-400 hover:to-primary-500 transition-all duration-300 shadow-xl shadow-primary-500/30 hover:shadow-primary-500/50 hover:-translate-y-0.5 flex items-center gap-2.5"
-              >
-                Enter Scores Now
-                <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            ) : (
-              <>
-                <Link
-                  to="/signup"
-                  className="group relative bg-gradient-to-r from-primary-500 to-primary-600 text-white px-8 py-4 rounded-2xl text-lg font-bold hover:from-primary-400 hover:to-primary-500 transition-all duration-300 shadow-xl shadow-primary-500/30 hover:shadow-primary-500/50 hover:-translate-y-0.5 flex items-center gap-2.5"
-                >
-                  Start Playing
-                  <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
-                <Link
-                  to="/login"
-                  className="group text-surface-300 hover:text-white px-8 py-4 rounded-2xl text-lg font-medium border border-white/10 hover:border-white/20 hover:bg-white/5 transition-all duration-300 flex items-center gap-2.5"
-                >
-                  I have an account
-                </Link>
-              </>
-            )}
-          </div>
-
-          <p className="animate-fade-in-up animation-delay-400 mt-5 text-sm text-surface-500 flex items-center justify-center gap-1.5">
-            <Shield className="h-3.5 w-3.5" />
-            $10/month • Cancel anytime • Secure payments via Stripe
-          </p>
-        </div>
-
-        {/* Floating stats cards */}
-        <div className="animate-fade-in-up animation-delay-500 max-w-4xl mx-auto mt-16 grid grid-cols-3 gap-4 sm:gap-6">
-          <StatCard
-            icon={<Users className="h-5 w-5" />}
-            value="500+"
-            label="Active Players"
-            delay="0"
-          />
-          <StatCard
-            icon={<DollarSign className="h-5 w-5" />}
-            value="$12K"
-            label="Prizes Awarded"
-            delay="1"
-          />
-          <StatCard
-            icon={<Heart className="h-5 w-5" />}
-            value="$4.8K"
-            label="Donated to Charity"
-            delay="2"
-          />
-        </div>
-      </section>
-
-      {/* How It Works */}
-      <section className="relative z-10 py-24 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <span className="inline-block text-primary-400 text-sm font-semibold tracking-wider uppercase mb-3">
-              Simple & Rewarding
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-              How It Works
-            </h2>
-            <p className="text-surface-400 max-w-xl mx-auto">
-              Three simple steps to start winning prizes and making a difference
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
-            <StepCard
-              icon={<LandPlot className="h-6 w-6" />}
-              number="01"
-              title="Enter Your Scores"
-              description="Submit your last 5 rounds in Stableford format. We maintain your rolling average automatically."
-              gradient="from-primary-500/20 to-primary-600/20"
-              iconBg="from-primary-400 to-primary-600"
-              delay={0}
-            />
-            <StepCard
-              icon={<Heart className="h-6 w-6" />}
-              number="02"
-              title="Support Charities"
-              description="10% of your subscription goes directly to a charity of your choice. You can always give more."
-              gradient="from-rose-500/20 to-pink-600/20"
-              iconBg="from-rose-400 to-pink-600"
-              delay={1}
-            />
-            <StepCard
-              icon={<Trophy className="h-6 w-6" />}
-              number="03"
-              title="Win Monthly Prizes"
-              description="Your scores generate lottery numbers. Match in our monthly draw and win real cash prizes."
-              gradient="from-accent-500/20 to-amber-600/20"
-              iconBg="from-accent-400 to-amber-600"
-              delay={2}
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Prize Pool Breakdown */}
-      <section className="relative z-10 py-24 px-4">
-        <div className="max-w-5xl mx-auto">
-          <div className="glass rounded-3xl p-8 sm:p-12 relative overflow-hidden">
-            {/* Decorative accent */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-accent-500/10 to-transparent rounded-bl-full" />
-            <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-primary-500/10 to-transparent rounded-tr-full" />
-
-            <div className="relative">
-              <div className="text-center mb-12">
-                <span className="inline-block text-accent-400 text-sm font-semibold tracking-wider uppercase mb-3">
-                  Prize Distribution
-                </span>
-                <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                  Real Money. Real Winners.
-                </h2>
-                <p className="text-surface-400 max-w-lg mx-auto">
-                  Every month's subscription pool is split into three prize tiers
-                </p>
-              </div>
-
-              <div className="grid sm:grid-cols-3 gap-6">
-                <PrizeCard
-                  tier="5-Number Match"
-                  percentage="40%"
-                  highlight="Jackpot rolls over!"
-                  icon={<Star className="h-5 w-5" />}
-                  color="accent"
-                />
-                <PrizeCard
-                  tier="4-Number Match"
-                  percentage="35%"
-                  highlight="Split among winners"
-                  icon={<Zap className="h-5 w-5" />}
-                  color="primary"
-                />
-                <PrizeCard
-                  tier="3-Number Match"
-                  percentage="25%"
-                  highlight="Split among winners"
-                  icon={<Gift className="h-5 w-5" />}
-                  color="primary"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features / Why GolfCharity */}
-      <section className="relative z-10 py-24 px-4">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
-            <span className="inline-block text-primary-400 text-sm font-semibold tracking-wider uppercase mb-3">
-              Built Different
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-              Why GolfCharity?
-            </h2>
-          </div>
-
-          <div className="grid sm:grid-cols-2 gap-5">
-            <FeatureCard
-              icon={<TrendingUp className="h-5 w-5" />}
-              title="Fair Rolling System"
-              description="Rolling 5-score system keeps competition fair and rewards consistency."
-            />
-            <FeatureCard
-              icon={<Trophy className="h-5 w-5" />}
-              title="Jackpot Rollovers"
-              description="40% of the pool goes to jackpot — it rolls over if no one wins."
-            />
-            <FeatureCard
-              icon={<Heart className="h-5 w-5" />}
-              title="Verified Charities"
-              description="Support verified charities with every round you play."
-            />
-            <FeatureCard
-              icon={<Shield className="h-5 w-5" />}
-              title="Secure & Modern"
-              description="Simple, premium interface — no golf clichés, just great design."
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="relative z-10 py-24 px-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="relative bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 rounded-3xl p-10 sm:p-16 text-center overflow-hidden">
-            {/* Decorative elements */}
-            <div className="absolute inset-0 opacity-30">
-              <div className="absolute top-6 left-8 w-3 h-3 bg-white/30 rounded-full animate-float" />
-              <div className="absolute top-12 right-16 w-2 h-2 bg-white/20 rounded-full animate-float animation-delay-200" />
-              <div className="absolute bottom-10 left-1/4 w-2.5 h-2.5 bg-white/25 rounded-full animate-float animation-delay-400" />
-              <div className="absolute bottom-16 right-1/3 w-2 h-2 bg-white/20 rounded-full animate-float animation-delay-600" />
-            </div>
-
-            <div className="relative">
-              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                Ready to Play for Good?
+        {/* Feature Detail Section */}
+        <section className="mt-40 grid lg:grid-cols-3 gap-16 items-center">
+            <div className="lg:col-span-1 space-y-8">
+              <h2 className="text-4xl font-serif font-medium leading-tight">
+                Crafted for those <br/> <span className="italic">who play with</span> <br/> heart.
               </h2>
-              <p className="text-primary-100/80 mb-10 text-lg max-w-lg mx-auto leading-relaxed">
-                Join hundreds of golfers supporting charities and winning prizes
-                every single month.
+              <p className="text-sm opacity-70 leading-relaxed max-w-xs font-medium uppercase tracking-tight">
+                Our rolling 5-score system ensures every match is earned. Professional algorithms. Real impact. Real cash prizes.
               </p>
-
-              {user ? (
-                <Link
-                  to="/dashboard"
-                  className="group inline-flex items-center gap-2.5 bg-white text-primary-700 px-8 py-4 rounded-2xl text-lg font-bold hover:bg-primary-50 transition-all duration-300 shadow-xl hover:-translate-y-0.5"
-                >
-                  {isSubscribed ? 'Enter Your Scores' : 'Subscribe Now'}
-                  <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              ) : (
-                <Link
-                  to="/signup"
-                  className="group inline-flex items-center gap-2.5 bg-white text-primary-700 px-8 py-4 rounded-2xl text-lg font-bold hover:bg-primary-50 transition-all duration-300 shadow-xl hover:-translate-y-0.5"
-                >
-                  Create Free Account
-                  <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              )}
             </div>
-          </div>
-        </div>
-      </section>
+
+            <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-8">
+                <div className="p-12 border border-white/5 bg-tan/20 rounded-2xl shadow-inner backdrop-blur-sm space-y-4">
+                    <span className="text-[10px] uppercase tracking-[0.3em] font-black opacity-30 italic text-olive">Phase 01</span>
+                    <h3 className="text-2xl font-serif bold italic text-golf">Global Giving</h3>
+                    <p className="text-xs opacity-60 leading-relaxed italic">Admin-controlled active charities ensure focus and unified community support for worthy causes.</p>
+                </div>
+                <div className="p-12 border border-white/5 bg-tan/20 rounded-2xl shadow-inner backdrop-blur-sm space-y-4">
+                    <span className="text-[10px] uppercase tracking-[0.3em] font-black opacity-30 italic text-olive">Phase 02</span>
+                    <h3 className="text-2xl font-serif bold italic text-golf">Monthly Draws</h3>
+                    <p className="text-xs opacity-60 leading-relaxed italic">Match your historical performance against the draw. Top tiers win up to 40% of the membership pool.</p>
+                </div>
+            </div>
+        </section>
+
+      </main>
 
       {/* Footer */}
-      <footer className="relative z-10 border-t border-white/5 py-10">
-        <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <div className="bg-gradient-to-br from-primary-400 to-primary-600 p-1.5 rounded-lg">
-              <LandPlot className="h-4 w-4 text-white" />
-            </div>
-            <span className="text-sm font-semibold text-surface-400">
-              Golf<span className="text-primary-400">Charity</span>
-            </span>
+      <footer className="border-t border-golf/5 px-6 sm:px-12 py-16 flex flex-col items-center text-center gap-10">
+          <div className="flex flex-col items-center">
+              <span className="text-xs uppercase tracking-[0.5em] font-bold opacity-30 mb-4 italic">Finest Charity Lottery</span>
+              <h4 className="text-3xl font-serif italic tracking-tighter">Golf For Good</h4>
           </div>
-          <p className="text-sm text-surface-600">
-            © 2026 GolfCharity. Built for Digital Heroes selection.
+          
+          <div className="flex gap-8 text-[10px] uppercase tracking-[0.2em] font-bold opacity-40">
+             <Link to="/" className="hover:opacity-100 transition-opacity">Privacy</Link>
+             <Link to="/" className="hover:opacity-100 transition-opacity">Terms</Link>
+             <Link to="/" className="hover:opacity-100 transition-opacity">Contact</Link>
+          </div>
+
+          <p className="text-[10px] opacity-30 uppercase tracking-[0.2em] mt-8">
+            © 2026 Golf For Good • High Plains Association
           </p>
-        </div>
       </footer>
-    </div>
-  )
-}
-
-/* ─────── Helper Components ─────── */
-
-function StatCard({ icon, value, label }) {
-  return (
-    <div className="glass rounded-2xl p-5 sm:p-6 text-center hover:bg-white/[0.08] transition-colors duration-300 group">
-      <div className="text-primary-400 mb-2 flex justify-center group-hover:scale-110 transition-transform duration-300">
-        {icon}
-      </div>
-      <div className="text-2xl sm:text-3xl font-extrabold text-white mb-1">{value}</div>
-      <div className="text-xs sm:text-sm text-surface-400 font-medium">{label}</div>
-    </div>
-  )
-}
-
-function StepCard({ icon, number, title, description, gradient, iconBg }) {
-  return (
-    <div className={`group relative bg-gradient-to-br ${gradient} rounded-2xl p-7 border border-white/5 hover:border-white/10 transition-all duration-300 hover:-translate-y-1`}>
-      <div className="flex items-center gap-3 mb-5">
-        <div className={`bg-gradient-to-br ${iconBg} p-2.5 rounded-xl text-white shadow-lg`}>
-          {icon}
-        </div>
-        <span className="text-surface-500 text-sm font-bold tracking-wider">{number}</span>
-      </div>
-      <h3 className="text-xl font-bold text-white mb-2.5">{title}</h3>
-      <p className="text-surface-400 leading-relaxed text-sm">{description}</p>
-    </div>
-  )
-}
-
-function PrizeCard({ tier, percentage, highlight, icon, color }) {
-  const isAccent = color === 'accent'
-  return (
-    <div className={`group relative rounded-2xl p-6 border transition-all duration-300 hover:-translate-y-1 ${
-      isAccent
-        ? 'bg-accent-500/10 border-accent-500/20 hover:border-accent-500/40'
-        : 'bg-primary-500/10 border-primary-500/20 hover:border-primary-500/40'
-    }`}>
-      <div className={`inline-flex p-2 rounded-lg mb-4 ${
-        isAccent ? 'bg-accent-500/20 text-accent-400' : 'bg-primary-500/20 text-primary-400'
-      }`}>
-        {icon}
-      </div>
-      <div className={`text-4xl font-extrabold mb-1 ${
-        isAccent ? 'text-accent-400' : 'text-primary-400'
-      }`}>
-        {percentage}
-      </div>
-      <div className="text-white font-semibold mb-1">{tier}</div>
-      <div className={`text-xs font-medium ${
-        isAccent ? 'text-accent-300/70' : 'text-primary-300/70'
-      }`}>
-        {highlight}
-      </div>
-    </div>
-  )
-}
-
-function FeatureCard({ icon, title, description }) {
-  return (
-    <div className="group flex gap-4 p-5 rounded-2xl border border-white/5 hover:border-primary-500/20 hover:bg-primary-500/5 transition-all duration-300">
-      <div className="flex-shrink-0 bg-primary-500/10 text-primary-400 p-2.5 rounded-xl h-fit group-hover:bg-primary-500/20 transition-colors duration-300">
-        {icon}
-      </div>
-      <div>
-        <h3 className="text-white font-semibold mb-1">{title}</h3>
-        <p className="text-surface-400 text-sm leading-relaxed">{description}</p>
-      </div>
     </div>
   )
 }

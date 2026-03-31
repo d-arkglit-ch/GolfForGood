@@ -86,9 +86,9 @@ export default function LotteryDisplay({ scores, user }) {
   // Prize tier info
   const getTierInfo = (count) => {
     switch (count) {
-      case 5: return { label: 'JACKPOT WINNER', icon: <Crown className="h-5 w-5" />, color: 'amber', pool: '40%', emoji: '🏆' }
-      case 4: return { label: 'TIER 2 WINNER', icon: <Zap className="h-5 w-5" />, color: 'primary', pool: '35%', emoji: '⚡' }
-      case 3: return { label: 'TIER 3 WINNER', icon: <Gift className="h-5 w-5" />, color: 'blue', pool: '25%', emoji: '🎁' }
+      case 5: return { label: 'LEGACY TRIUMPH', icon: <Crown className="h-5 w-5" />, color: 'olive', pool: '40%', emoji: '🏆' }
+      case 4: return { label: 'ELITE MATCH', icon: <Zap className="h-5 w-5" />, color: 'olive', pool: '35%', emoji: '⚡' }
+      case 3: return { label: 'PATRON HONOR', icon: <Gift className="h-5 w-5" />, color: 'golf', pool: '25%', emoji: '🎁' }
       default: return null
     }
   }
@@ -150,8 +150,8 @@ export default function LotteryDisplay({ scores, user }) {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 flex justify-center items-center h-full">
-        <img src="/golf-green.gif" alt="Loading..." className="w-16 h-16 object-contain" />
+      <div className="bg-ivory rounded-2xl border border-white/5 p-12 flex justify-center items-center h-full">
+         <div className="animate-spin rounded-full h-8 w-8 border-2 border-olive/30 border-t-olive" />
       </div>
     )
   }
@@ -159,11 +159,11 @@ export default function LotteryDisplay({ scores, user }) {
   const tier = matchResults ? getTierInfo(matchResults.count) : null
 
   return (
-    <div className={`bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col h-full transition-all duration-500 ${justBecameEligible ? 'ring-2 ring-primary-400 ring-offset-2 shadow-lg shadow-primary-500/20' : ''} ${tier ? 'ring-2 ring-offset-2 shadow-lg ' + (tier.color === 'amber' ? 'ring-amber-400 shadow-amber-500/20' : tier.color === 'primary' ? 'ring-primary-400 shadow-primary-500/20' : 'ring-blue-400 shadow-blue-500/20') : ''}`}>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-          <Trophy className="h-6 w-6 text-amber-500" />
-          Monthly Charity Draw
+    <div className={`bg-sand/10 rounded-2xl border border-olive/10 p-8 flex flex-col h-full transition-all duration-700 shadow-2xl shadow-olive/5 ${justBecameEligible ? 'ring-2 ring-olive/20 ring-offset-4' : ''} ${tier ? 'ring-2 ring-olive ring-offset-4 shadow-olive/20' : ''}`}>
+      <div className="flex items-center justify-between mb-8">
+        <h2 className="text-2xl font-serif italic font-bold text-golf flex items-center gap-4">
+          <Trophy className="h-6 w-6 text-olive/40" />
+          The Legacy Draw
         </h2>
         <button
           onClick={fetchMonthlyData}
@@ -176,33 +176,20 @@ export default function LotteryDisplay({ scores, user }) {
 
       {/* Winner Congratulation Banner */}
       {tier && (
-        <div className={`mb-5 p-4 rounded-xl border-2 animate-fade-in-up ${
-          tier.color === 'amber' ? 'bg-amber-50 border-amber-300' :
-          tier.color === 'primary' ? 'bg-primary-50 border-primary-300' :
-          'bg-blue-50 border-blue-300'
+        <div className={`mb-8 p-6 rounded-2xl border-2 animate-fade-in-up shadow-2xl ${
+          tier.color === 'olive' ? 'bg-olive text-white border-white/20' :
+          'bg-golf text-white border-white/20'
         }`}>
-          <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-lg ${
-              tier.color === 'amber' ? 'bg-amber-100 text-amber-600' :
-              tier.color === 'primary' ? 'bg-primary-100 text-primary-600' :
-              'bg-blue-100 text-blue-600'
-            }`}>
+          <div className="flex items-center gap-4">
+            <div className="bg-golf/10 p-3 rounded-full backdrop-blur-md">
               {tier.icon}
             </div>
             <div>
-              <h3 className={`font-extrabold text-lg ${
-                tier.color === 'amber' ? 'text-amber-900' :
-                tier.color === 'primary' ? 'text-primary-900' :
-                'text-blue-900'
-              }`}>
+              <h3 className="font-serif italic font-bold text-2xl">
                 {tier.emoji} {tier.label}!
               </h3>
-              <p className={`text-sm font-medium ${
-                tier.color === 'amber' ? 'text-amber-700' :
-                tier.color === 'primary' ? 'text-primary-700' :
-                'text-blue-700'
-              }`}>
-                You matched {matchResults.count} numbers! You win a share of the {tier.pool} prize pool.
+              <p className="text-[10px] uppercase tracking-widest font-bold opacity-80 mt-1">
+                Sequence Match Detected! You are entitled to a share of the {tier.pool} pool.
               </p>
             </div>
           </div>
@@ -211,47 +198,47 @@ export default function LotteryDisplay({ scores, user }) {
 
       {/* Dynamic Status Dashboard (only show if no winner banner) */}
       {!tier && (
-        <div className={`mb-6 p-5 rounded-xl border transition-all duration-500 ${
+        <div className={`mb-10 p-6 rounded-2xl border transition-all duration-700 shadow-inner ${
           simulatedNumbers 
             ? winningNumbers 
-              ? 'bg-gray-50 border-gray-200'  
-              : 'bg-green-50 border-green-200' 
+              ? 'bg-ivory/50 border-olive/5'  
+              : 'bg-olive text-white border-white/20' 
             : eligible
-              ? `bg-primary-50 border-primary-200 ${justBecameEligible ? 'animate-pulse' : ''}`
-              : 'bg-amber-50 border-amber-200'
+              ? `bg-pastel-olive/20 border-olive/20 ${justBecameEligible ? 'animate-pulse' : ''}`
+              : 'bg-sand/30 border-olive/10 opacity-60'
         }`}>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             {simulatedNumbers ? (
               winningNumbers ? (
-                <AlertTriangle className="h-8 w-8 text-gray-400" />
+                <AlertTriangle className="h-6 w-6 opacity-40" />
               ) : (
-                <CheckCircle className="h-8 w-8 text-green-600" />
+                <CheckCircle className="h-6 w-6 text-white" />
               )
             ) : eligible ? (
-              <Sparkles className="h-8 w-8 text-primary-600" />
+              <Sparkles className="h-6 w-6 text-olive" />
             ) : (
-               <AlertTriangle className="h-8 w-8 text-amber-500" />
+               <AlertTriangle className="h-6 w-6 text-olive/40" />
             )}
             
-            <div>
-              <h3 className={`font-bold ${simulatedNumbers ? winningNumbers ? 'text-gray-700' : 'text-green-900' : eligible ? 'text-primary-900' : 'text-amber-900'}`}>
+            <div className="flex-1">
+              <h3 className={`text-[10px] uppercase font-black tracking-widest leading-relaxed ${simulatedNumbers ? winningNumbers ? 'text-golf/40' : 'text-white' : 'text-olive'}`}>
                 {simulatedNumbers 
                   ? winningNumbers
-                    ? `No prize this month (${matchResults?.count || 0} match${matchResults?.count !== 1 ? 'es' : ''})`
-                    : "✓ Entered in this month's draw" 
+                    ? `${matchResults?.count || 0} Matches Found`
+                    : "Admission Authenticated" 
                   : eligible 
-                    ? "✓ Goal Reached! Generate your numbers." 
+                    ? "Eligibility Confirmed" 
                     : scoresThisMonth.length === 1 
-                      ? "⚠ Need 1 more score this month" 
-                      : "Enter at least 2 scores this month to participate"}
+                      ? "Admission Pending (1 Round Remaining)" 
+                      : "Minimum Rounds Not Achieved"}
               </h3>
-              <p className={`text-sm mt-0.5 ${simulatedNumbers ? winningNumbers ? 'text-gray-500' : 'text-green-700' : eligible ? 'text-primary-700' : 'text-amber-700'}`}>
-                {simulatedNumbers 
-                  ? winningNumbers
-                    ? 'Better luck next month! Keep entering your scores.'
-                    : `Draw date: ${nextDrawDate()}`
-                  : `Progress: ${scoresThisMonth.length}/2 scores entered in ${new Date().toLocaleDateString('en-US', { month: 'long' })}`}
-              </p>
+               <p className={`text-lg font-serif italic font-bold mt-1 ${simulatedNumbers ? winningNumbers ? 'text-golf/20' : 'text-white/80' : 'text-golf'}`}>
+                  {simulatedNumbers 
+                    ? winningNumbers
+                      ? 'Better luck next cycle.'
+                      : `The next draw commences: ${nextDrawDate()}`
+                    : `Current Standing: ${scoresThisMonth.length} / 2 Rounds`}
+               </p>
             </div>
           </div>
         </div>
@@ -275,23 +262,23 @@ export default function LotteryDisplay({ scores, user }) {
       )}
 
       {/* Ticket Wrapper */}
-      <div className="flex-1 flex flex-col justify-center mb-6">
-        <p className="text-sm font-medium text-gray-700 mb-4 text-center uppercase tracking-wider">
-          {simulatedNumbers ? "Your Official Locked Numbers" : "Your Ticket"}
+      <div className="flex-1 flex flex-col justify-center mb-8">
+        <p className="text-[10px] uppercase font-bold text-golf/30 mb-6 text-center tracking-[0.3em] font-display">
+          {simulatedNumbers ? "Official Sequence Authenticated" : "Provisional Ticket"}
         </p>
         
-        <div className="flex gap-2 sm:gap-3 justify-center mb-4">
+        <div className="flex gap-3 sm:gap-4 justify-center mb-8">
           {displayNumbers.map((num, i) => {
             const isMatched = matchResults?.matchedNumbers?.includes(num)
             return (
               <div
                 key={i}
-                className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center text-xl font-bold transition-all duration-300 ${
+                className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-2xl font-serif italic font-black transition-all duration-1000 transform ${
                   isMatched
-                    ? 'bg-green-500 text-white shadow-lg shadow-green-500/40 ring-2 ring-green-300 ring-offset-1 scale-110'
+                    ? 'bg-olive text-white shadow-2xl shadow-olive/30 ring-2 ring-white/20 scale-110'
                     : simulatedNumbers 
-                      ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30' 
-                      : 'bg-gray-50 text-gray-300 border-2 border-dashed border-gray-200'
+                      ? 'bg-tan text-golf border border-white/5 shadow-xl shadow-black/20' 
+                      : 'bg-tan/20 text-golf/5 border-2 border-dashed border-white/5'
                 }`}
               >
                 {num > 0 ? num : '-'}
@@ -301,23 +288,23 @@ export default function LotteryDisplay({ scores, user }) {
         </div>
 
         {/* Generate / Locked button logic */}
-        <div className="mt-6">
+        <div className="mt-8">
           {simulatedNumbers ? (
-            <div className="w-full flex items-center justify-center gap-2 py-3 bg-gray-100 text-gray-500 rounded-xl font-semibold text-sm">
-              <Lock className="h-4 w-4" /> Valid for {new Date().toLocaleDateString('en-US', { month: 'long' })} Draw
+            <div className="w-full flex items-center justify-center gap-3 py-4 bg-ivory border border-olive/10 text-olive font-black text-[10px] uppercase tracking-widest rounded-full opacity-40">
+              <Lock className="h-4 w-4" /> Locked for the {new Date().toLocaleDateString('en-US', { month: 'long' })} Draw
             </div>
           ) : (
             <button
               onClick={handleSimulateAndLock}
               disabled={!eligible || saving}
-              className="w-full py-4 bg-primary-600 text-white rounded-xl font-bold hover:bg-primary-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-primary-500/20"
+              className="w-full py-5 bg-olive text-white rounded-full text-[11px] uppercase tracking-[0.3em] font-bold hover:bg-olive/90 transition-all duration-500 disabled:opacity-20 flex items-center justify-center gap-3 shadow-2xl shadow-olive/20"
             >
               {saving ? (
                 <RefreshCw className="h-5 w-5 animate-spin" />
               ) : (
                 <Sparkles className="h-5 w-5" />
               )}
-              {eligible ? "Generate & Lock Official Ticket" : "Locked (Enter 2 scores to unlock)"}
+              {eligible ? "Seal & Authenticate Sequence" : "Rounds Incomplete"}
             </button>
           )}
         </div>
@@ -363,28 +350,27 @@ export default function LotteryDisplay({ scores, user }) {
                   const tierInfo = getTierInfo(matchCount)
 
                   return (
-                    <div key={draw.id} className="p-4 bg-white">
-                      <div className="flex justify-between items-center mb-3">
-                        <span className="font-bold text-gray-900 text-sm">{monthName}</span>
+                    <div key={draw.id} className="p-8 bg-tan mb-4 rounded-2xl border border-white/5 shadow-lg">
+                      <div className="flex justify-between items-center mb-6">
+                        <span className="font-serif italic font-bold text-golf text-lg">{monthName}</span>
                         {tierInfo ? (
-                          <span className={`text-xs font-bold px-2 py-0.5 rounded-md ${
-                            tierInfo.color === 'amber' ? 'bg-amber-100 text-amber-700' :
-                            tierInfo.color === 'primary' ? 'bg-primary-100 text-primary-700' :
-                            'bg-blue-100 text-blue-700'
+                          <span className={`text-[9px] font-black uppercase tracking-[0.2em] px-4 py-1.5 rounded-full border ${
+                            tierInfo.color === 'olive' ? 'bg-olive/20 text-olive border-olive/30' :
+                            'bg-golf/20 text-golf border-golf/30'
                           }`}>
                             {tierInfo.emoji} Won {tierInfo.pool}
                           </span>
                         ) : (
-                          <span className="text-xs text-gray-400 font-medium">No prize</span>
+                          <span className="text-[9px] uppercase tracking-widest font-bold opacity-30">Archive Only</span>
                         )}
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div>
                           <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400 mb-1.5">Winning Numbers</p>
-                          <div className="flex gap-1">
+                          <div className="flex gap-2">
                             {draw.winning_numbers.map((num, i) => (
-                              <div key={i} className="w-6 h-6 rounded-full bg-amber-400 text-white flex items-center justify-center text-[10px] font-bold shadow-sm shadow-amber-500/20">
+                              <div key={i} className="w-8 h-8 rounded-full bg-olive text-white flex items-center justify-center text-[10px] font-black shadow-lg shadow-olive/20 border border-white/10">
                                 {num}
                               </div>
                             ))}

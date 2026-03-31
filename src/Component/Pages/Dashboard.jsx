@@ -36,92 +36,87 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-100 sticky top-0 z-40 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 group">
-            <div className="bg-primary-50 p-1.5 rounded-lg group-hover:bg-primary-100 transition-colors">
-              <LandPlot className="h-6 w-6 text-primary-600" />
-            </div>
-            <span className="text-xl font-bold text-gray-900">GolfCharity</span>
-          </Link>
-          <div className="flex items-center gap-2 sm:gap-4">
-            <Link
-              to="/profile"
-              className="group flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-gray-100 transition-colors border border-transparent hover:border-gray-200"
-            >
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 text-primary-700 flex items-center justify-center font-bold text-sm shadow-inner">
-                {profile?.full_name?.charAt(0) || 'U'}
-              </div>
-              <span className="text-sm font-semibold text-gray-700 group-hover:text-primary-600 transition-colors hidden sm:block">
-                {profile?.full_name || 'My Profile'}
-              </span>
-            </Link>
-            
-            <div className="w-px h-6 bg-gray-200 hidden sm:block"></div>
+    <div className="min-h-screen bg-ivory text-golf font-sans selection:bg-tan/30 leading-relaxed">
+      {/* Editorial Header */}
+      <header className="relative z-50 border-b border-golf/10 px-6 sm:px-12 py-10 flex justify-between items-end bg-ivory">
+        <div className="flex flex-col">
+          <span className="text-[10px] uppercase tracking-[0.3em] font-medium opacity-60 mb-1 leading-none italic text-olive">Established 2026</span>
+          <span className="text-xl font-display font-black leading-none tracking-tighter italic">Golf For Good</span>
+        </div>
 
-            <button
-              onClick={handleSignOut}
-              className="text-gray-500 hover:text-red-600 flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-red-50 transition-colors text-sm font-medium"
-              title="Sign Out"
-            >
-              <LogOut className="h-4 w-4" />
-              <span className="hidden sm:inline">Sign Out</span>
-            </button>
-          </div>
+        <div className="flex gap-8 items-center">
+          <Link
+            to="/profile"
+            className="group flex items-center gap-3 px-4 py-2 rounded-full border border-olive/10 hover:bg-olive hover:text-white transition-all duration-500"
+          >
+            <div className="w-6 h-6 rounded-full bg-pastel-olive/30 text-olive flex items-center justify-center font-bold text-[10px] uppercase group-hover:bg-white/20 group-hover:text-white">
+              {profile?.full_name?.charAt(0) || 'U'}
+            </div>
+            <span className="text-[10px] uppercase tracking-[0.2em] font-bold hidden sm:block">
+              {profile?.full_name || 'Profile'}
+            </span>
+          </Link>
+          
+          <button
+            onClick={handleSignOut}
+            className="text-[10px] uppercase tracking-[0.2em] font-bold opacity-40 hover:opacity-100 hover:text-red-700 transition-all flex items-center gap-2"
+            title="Sign Out"
+          >
+            <LogOut className="h-4 w-4" />
+            <span className="hidden sm:inline">Leave</span>
+          </button>
         </div>
       </header>
 
       {/* Main Content */}
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         {/* Charity Banner */}
-        <div className="mb-6 p-4 bg-gradient-to-r from-rose-50 to-pink-50 border border-rose-100 rounded-xl flex flex-col sm:flex-row items-center justify-center gap-3 shadow-sm animate-fade-in-up hover:shadow-md transition">
-          <div className="bg-rose-100 p-2 rounded-full">
-            <HeartHandshake className="h-5 w-5 text-rose-600" />
+        <div className="mb-12 p-6 bg-pastel-olive/10 border border-olive/10 rounded-2xl flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up">
+          <div className="bg-olive/10 p-2 rounded-full">
+            <HeartHandshake className="h-5 w-5 text-olive" />
           </div>
-          <span className="text-gray-800 font-medium text-center sm:text-left">
-             This month, 10% of all platform subscriptions go to: <strong className="text-rose-700 font-extrabold tracking-wide">{activeCharity}</strong>
+          <span className="text-[11px] uppercase tracking-[0.1em] font-bold text-olive/80 text-center sm:text-left">
+             Monthly Beneficiary: <span className="text-golf underline decoration-olive/30 underline-offset-4">{activeCharity}</span>
           </span>
         </div>
 
         {/* Subscription Status Banner */}
         {isSubscribed ? (
-          <div className="mb-8 p-4 bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-100 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="bg-emerald-100 p-2 rounded-full">
-                <Crown className="h-5 w-5 text-emerald-600" />
+          <div className="mb-16 p-6 border border-olive/10 bg-sand/5 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <div className="bg-olive/10 p-3 rounded-full">
+                <Crown className="h-6 w-6 text-olive" />
               </div>
               <div>
-                <p className="font-bold text-emerald-900">Active VIP Pass</p>
-                <p className="text-sm text-emerald-700">
-                  Renews: {new Date(subscription?.current_period_end).toLocaleDateString()}
+                <p className="text-lg font-serif italic font-bold">VIP Membership Active</p>
+                <p className="text-[10px] uppercase tracking-widest font-bold opacity-40">
+                  Renews: {new Date(subscription?.current_period_end).toLocaleDateString(undefined, { month: 'long', day: 'numeric' })}
                 </p>
               </div>
             </div>
             <Link
               to="/subscription"
-              className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-sm transition-colors flex items-center gap-1.5"
+              className="text-[10px] uppercase tracking-[0.2em] font-bold border-b border-olive/40 pb-1 hover:border-olive transition-all flex items-center gap-2"
             >
-              Manage <ArrowRight className="h-4 w-4" />
+              Manage Privilege <ArrowRight className="h-3 w-3" />
             </Link>
           </div>
         ) : (
-          <div className="mb-8 p-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="bg-amber-100 p-2 rounded-full">
-                <Crown className="h-5 w-5 text-amber-600" />
+          <div className="mb-16 p-8 border border-white/5 bg-tan text-golf rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-8 shadow-2xl shadow-black/40">
+            <div className="flex items-center gap-4">
+              <div className="bg-olive/10 p-3 rounded-full">
+                <Crown className="h-6 w-6 text-olive" />
               </div>
               <div>
-                <p className="font-bold text-amber-900">Free Account</p>
-                <p className="text-sm text-amber-700">Subscribe to unlock features & support charity</p>
+                <p className="text-2xl font-serif italic font-bold">Amateur Status</p>
+                <p className="text-sm opacity-60">Upgrade to join the inner circle and support the cause.</p>
               </div>
             </div>
             <Link
               to="/subscription"
-              className="bg-amber-500 hover:bg-amber-600 text-white px-5 py-2 rounded-lg text-sm font-bold shadow-sm transition-colors whitespace-nowrap"
+              className="bg-golf text-ivory px-8 py-3 rounded-full text-[11px] uppercase tracking-[0.2em] font-extrabold hover:opacity-90 transition-all whitespace-nowrap"
             >
-              Upgrade Now
+              Secure Pass
             </Link>
           </div>
         )}
@@ -137,20 +132,20 @@ export default function Dashboard() {
 
             {/* Paywall Overlay locked exclusively to the Left Side */}
             {!isSubscribed && (
-              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center p-6 text-center">
-                <div className="bg-white/95 backdrop-blur-md p-6 sm:p-8 rounded-3xl shadow-2xl border border-gray-200 w-full mx-auto flex flex-col items-center transform transition-transform hover:scale-105 duration-300">
-                  <div className="bg-gradient-to-br from-amber-400 to-orange-500 p-3 rounded-2xl mb-4 shadow-lg shadow-orange-500/30">
-                    <Crown className="w-8 h-8 text-white" />
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center p-6 text-center backdrop-blur-[4px]">
+                <div className="bg-ivory/95 p-8 sm:p-10 rounded-2xl shadow-2xl border border-olive/10 max-w-sm mx-auto flex flex-col items-center transform transition-transform hover:scale-105 duration-500">
+                  <div className="bg-olive/10 p-4 rounded-full mb-6">
+                    <Crown className="w-8 h-8 text-olive" />
                   </div>
-                  <h3 className="text-xl font-extrabold text-gray-900 mb-2">Subscriber Exclusive</h3>
-                  <p className="text-gray-600 text-sm font-medium mb-6">
-                    Unlock exact score algorithms and enter your rounds to fuel the Charity Draw!
+                  <h3 className="text-3xl font-serif italic font-bold mb-4">Subscriber Exclusive</h3>
+                  <p className="text-[10px] uppercase tracking-widest font-bold opacity-50 mb-8 leading-relaxed">
+                    Unlock elite algorithms and enter your rounds to fuel the Legacy Draw.
                   </p>
                   <Link 
                     to="/subscription" 
-                    className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-6 py-3 rounded-xl font-bold shadow-xl shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:-translate-y-0.5 transition-all text-center flex items-center justify-center gap-2"
+                    className="w-full bg-olive text-white px-8 py-4 rounded-full text-[11px] uppercase tracking-[0.2em] font-bold shadow-xl shadow-olive/10 hover:bg-olive/90 transition-all text-center"
                   >
-                    Unlock for ₹5/mo
+                    Upgrade Privilege
                   </Link>
                 </div>
               </div>
