@@ -2,7 +2,7 @@
 
 A modern, subscription-based web application connecting golf enthusiasts with charitable causes. The platform utilizes a "Freemium" business model, allowing free users to interact with the dashboard while gating core gameplay mechanics (score entry & monthly lottery entry) behind a premium subscription. 
 
-## 🚀 The Core Loop (Play-Give-Win)
+##  The Core Loop (Play-Give-Win)
 1. **Play**: Subscribers log their real-world golf scores.
 2. **Give**: 10% of the affordable monthly subscription fee (₹5) goes directly to partnered charities.
 3. **Win**: Entering at least 2 scores in a month unlocks the **Monthly Charity Draw**. The system generates a 5-number lottery ticket weighted by the player's past performance. If their numbers match the Admin's monthly draw, they win a share of the cash prize pool!
@@ -17,7 +17,7 @@ A modern, subscription-based web application connecting golf enthusiasts with ch
 - **Payments**: Razorpay Subscriptions API & Webhooks
 - **Hosting**: Vercel
 
-## ✨ Key Features
+##  Key Features
 
 - **Auth & Onboarding**: Secure signup flow with real-time password strength indicators.
 - **Freemium Dashboard**: An elegant split-column UI. The "Score Entry" side is locked behind a Razorpay subscription, naturally funneling free users to upgrade.
@@ -35,7 +35,7 @@ The platform relies on `Row Level Security (RLS)` to ensure data privacy. Key ta
 - `user_lottery_numbers`: Stores the user's generated 5-number ticket per month.
 - `monthly_draws`: Stores the Admin's official winning numbers per month.
 
-## 💻 Local Development Setup
+## Local Development Setup
 
 1. **Clone the repository:**
    ```bash
@@ -64,12 +64,12 @@ The platform relies on `Row Level Security (RLS)` to ensure data privacy. Key ta
    npm run dev
    ```
 
-## 🌐 Deployment
+##  Deployment
 This project is configured for seamless deployment on **Vercel**. 
 - Single-page application (SPA) fallback routing is configured via `vercel.json` to prevent 404 errors on page reloads.
 - Ensure that *all* production environment variables are added to the Vercel Dashboard project settings.
 
-## 🤝 Contributing
+##  Contributing
 Contributions, issues, and feature requests are welcome!
 
 ---

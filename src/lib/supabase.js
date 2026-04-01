@@ -56,21 +56,64 @@ async getCurrentUser(){
     const {data:{user}}= await this.supabase.auth.getUser();
     return user;
 }
-async getProfile(userId){
-    const {data,error}= await this.supabase.from('profiles').select('*').eq('id',userId).single();
-    if(error){
-        throw error
+    async getProfile(userId){
+        const {data,error}= await this.supabase
+            .from('profiles')
+            .select('*, charities(name, logo_url)')
+            .eq('id',userId)
+            .single();
+        if(error){
+            throw error
+        }
+        return data;
     }
-    return data;
-}
-async getSubscription(userId){
-    const {data,error}= await this.supabase.from('subscriptions').select('*').eq('user_id',userId).single();
-    if(error){
-        throw error
-    }
-    return data;
-}
 
+    async getSubscription(userId){
+        const {data,error}= await this.supabase.from('subscriptions').select('*').eq('user_id',userId).single();
+        if(error){
+            throw error
+        }
+        return data;
+    }
+
+    // --- Charity Methods ---
+
+    async getCharities() {
+        const { data, error } = await this.supabase
+            .from('charities')
+            .select('*')
+            .order('name', { ascending: true })
+        if (error) throw error
+        return data
+    }
+
+    async addCharity(charity) {
+        const { data, error } = await this.supabase
+            .from('charities')
+            .insert(charity)
+            .select()
+            .single()
+        if (error) throw error
+        return data
+    }
+
+    async deleteCharity(id) {
+        const { error } = await this.supabase
+            .from('charities')
+            .delete()
+            .eq('id', id)
+        if (error) throw error
+        return true
+    }
+
+    async updateUserCharity(userId, charityId) {
+        const { error } = await this.supabase
+            .from('profiles')
+            .update({ charity_id: charityId })
+            .eq('id', userId)
+        if (error) throw error
+        return true
+    }
 }
 
 

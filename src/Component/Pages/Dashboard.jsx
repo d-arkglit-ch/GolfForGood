@@ -5,25 +5,21 @@ import ScoreEntry from '../ScoreEntry'
 import LotteryDisplay from '../LotteryDisplay'
 import authService from '../../lib/supabase'
 import { useState, useEffect } from 'react'
+import UserCharitySelector from '../UserCharitySelector'
 
 export default function Dashboard() {
   const { user, profile, subscription, isSubscribed, signOut } = useAuth()
   const [scores, setScores] = useState([])
-  const [activeCharity, setActiveCharity] = useState('Loading...')
 
   const fetchDashboardData = async () => {
     if (!user) return
-    const [scoresRes, settingsRes] = await Promise.all([
-      authService.supabase.from('scores').select('*').eq('user_id', user.id).order('date_played', { ascending: false }),
-      authService.supabase.from('platform_settings').select('active_charity').eq('id', 1).single()
-    ])
+    const scoresRes = await authService.supabase
+      .from('scores')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('date_played', { ascending: false })
     
     setScores(scoresRes.data || [])
-    if (settingsRes.data) {
-      setActiveCharity(settingsRes.data.active_charity)
-    } else {
-      setActiveCharity('Global Golf Foundation')
-    }
   }
 
   // Load scores and charity data on mount
@@ -70,15 +66,6 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-        {/* Charity Banner */}
-        <div className="mb-12 p-6 bg-pastel-olive/10 border border-olive/10 rounded-2xl flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up">
-          <div className="bg-olive/10 p-2 rounded-full">
-            <HeartHandshake className="h-5 w-5 text-olive" />
-          </div>
-          <span className="text-[11px] uppercase tracking-[0.1em] font-bold text-olive/80 text-center sm:text-left">
-             Monthly Beneficiary: <span className="text-golf underline decoration-olive/30 underline-offset-4">{activeCharity}</span>
-          </span>
-        </div>
 
         {/* Subscription Status Banner */}
         {isSubscribed ? (
@@ -156,6 +143,11 @@ export default function Dashboard() {
           <div className="h-full">
             <LotteryDisplay scores={scores} user={user} />
           </div>
+        </div>
+
+        {/* Charity Selection Section - New MVP Feature */}
+        <div className="mt-12 animate-fade-in-up animation-delay-300">
+           <UserCharitySelector />
         </div>
       </main>
     </div>
